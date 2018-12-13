@@ -13,49 +13,49 @@ from rlib.shared.utils import hard_update, soft_update
 class DQNAgent:
     """Interacts with and learns from the environment."""
 
-    # TODO: Ensure that this cannot be changed in other ways?
+    # TODO: Ensure that this cannot be changed in other ways
     # TODO: Look up original value for these params
     REQUIRED_HYPERPARAMETERS = {
         "buffer_size": int(2e5),
         "batch_size": 64,
         "gamma": 0.95,
-        "tau": 1e-3,
         "learning_rate": 5e-4,
-        "update_every": 4
+        "tau": 1e-3,
+        "learn_every": 4,
+        "hard_update_every": 5
     }
 
-    def __init__(self, state_size, action_size,
-
+    def __init__(self,
+                 state_size,
+                 action_size,
                  qnetwork_local=None,
                  qnetwork_target=None,
                  optimizer=None,
                  new_hyperparameters=None,
-
-                 use_ddqn=False, 
-
-                 seed=0, device="cpu"):
+                 seed=0,
+                 device="cpu",
+                 opt_soft_update=False,
+                 opt_ddqn=False):
         r"""Initialize an Agent object.
 
         Params
         ======
             state_size (int): Dimension of each state
             action_size (int): Dimension of each action
-            use_ddqn (bool): Use Double DQN instead of vanilla DQN
-
+            qnetwork_local (torch.nn.Module): Local Q-Network model
+            qnetwork_target (torch.nn.Module): Target Q-Network model
+            optimizer (torch.optim): Local Q-Network optimizer
+            new_hyperparameters (dict): New hyperparameter values
             seed (int): Random seed
             device (str): Identifier for device to be used by PyTorch
+            opt_soft_update (bool): Use soft update instead of hard update
+            opt_ddqn (bool): Use Double DQN for `expected_Q`
         """
-
-        # TODO: Give option to add soft update or not
-        # TODO: Give option to use DDQN
-
         if new_hyperparameters:
             self._set_hyperparameters(new_hyperparameters)
 
         self.state_size = state_size
         self.action_size = action_size
-        self.use_ddqn = use_ddqn
-
         self.seed = random.seed(seed)
         self.device = device
 
@@ -85,7 +85,12 @@ class DQNAgent:
 
         self.time_step = 0
 
-        # TODO: Hard update to have the same initial set of weights?
+        # User options
+        self.opt_soft_update = opt_soft_update
+        self.opt_ddqn = opt_ddqn
+
+        # Ensure local and target networks have the same initial weight
+        hard_update(self.qnetwork_local, self.qnetwork_target)
 
     def get_hyperparameters(self):
         r"""Returns the current state of the required hyperparameters"""
@@ -103,9 +108,9 @@ class DQNAgent:
         r"""Saves experience to replay memory and updates model weights"""
         self.memory.add(state, action, reward, next_state, done)
 
-        # Learn every UPDATE_EVERY time steps
-        self.time_step = (self.time_step + 1) % REQUIRED_HYPERPARAMETERS["update_every"]
-        if self.time_step == 0:
+        # Learn every `learn_every` time steps
+        self.time_step += 1
+        if self.time_step % REQUIRED_HYPERPARAMETERS["learn_every"] == 0:
             if len(self.memory) > REQUIRED_HYPERPARAMETERS["batch_size"]:
                 experiences = self.memory.sample()
                 self.learn(experiences, REQUIRED_HYPERPARAMETERS["gamma"])
@@ -141,17 +146,19 @@ class DQNAgent:
 
         gamma = self.REQUIRED_HYPERPARAMETERS["gamma"]
 
-        if self.use_ddqn:
+        if self.opt_ddqn:
             # Double DQN
             non_final_next_states = next_states * (1 - dones)
-            _, next_state_actions = self.qnetwork_local(non_final_next_states).max(1, keepdim=True)  # gets the actions themselves, not their output value
+            # Get the actions themselves, not their output value
+            _, next_state_actions = self.qnetwork_local(non_final_next_states).max(1, keepdim=True)
             next_Q_targets = self.qnetwork_target(non_final_next_states).gather(1, next_state_actions)
             target_Q = rewards + (gamma * next_Q_targets * (1 - dones))
             expected_Q = self.qnetwork_local(states).gather(1, actions)
         else:
             # Vanilla DQN
             next_max_a = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
-            target_Q = rewards + (gamma * next_max_a * (1 - dones))  # (1 - dones) ignores the actions that ended the game
+            # (1 - dones) ignores the actions that ended the game
+            target_Q = rewards + (gamma * next_max_a * (1 - dones))
             expected_Q = self.qnetwork_local(states).gather(1, actions)
 
         # Compute and minimize the loss
@@ -160,9 +167,12 @@ class DQNAgent:
         loss.backward()
         self.optimizer.step()
 
-        # TODO: Choice between hard and soft update
         # Update target network
-        soft_update(self.qnetwork_local, self.qnetwork_target, TAU)
+        if self.opt_soft_update:
+            soft_update(self.qnetwork_local, self.qnetwork_target, TAU)
+        else:
+            if self.time_step % REQUIRED_HYPERPARAMETERS["hard_update_every"] == 0:
+                hard_update(self.qnetwork_local, self.qnetwork_target)
 
     def print_network(self):
         r"""Helper to print network architecture for the agent."""
