@@ -1,0 +1,9 @@
+# Base
+.DS_Store
+__pycache__/
+.ipynb_checkpoints/
+.vscode/
+
+# Environments
+.env
+.envrc
