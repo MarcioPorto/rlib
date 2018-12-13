@@ -13,6 +13,8 @@ from rlib.shared.utils import hard_update, soft_update
 class DQNAgent:
     """Interacts with and learns from the environment."""
 
+    # TODO: Consider how to extend this to accept multiple agents?
+
     # TODO: Ensure that this cannot be changed in other ways
     # TODO: Look up original value for these params
     REQUIRED_HYPERPARAMETERS = {
@@ -180,3 +182,25 @@ class DQNAgent:
         print(self.qnetwork_local)
         print("Q-Network (Target):")
         print(self.qnetwork_target)
+
+    def save_model(self):
+        r"""Saves model weights to file."""
+        # TODO: Move to base class of create helpers
+        torch.save(
+            self.qnetwork_local.state_dict(),
+            os.path.join(self.model_dir, 'qnetwork_local_params.pth')
+        )
+        torch.save(
+            self.optimizer.state_dict(),
+            os.path.join(self.model_dir, 'optimizer_params.pth')
+        )
+
+    def load_model(self):
+        r"""Loads weights from saved model."""
+        # TODO: Move to base class of create helpers
+        self.qnetwork_local.load_state_dict(
+            torch.load(os.path.join(self.model_dir, 'qnetwork_local_params.pth'))
+        )
+        self.optimizer.load_state_dict(
+            torch.load(os.path.join(self.model_dir, 'optimizer_params.pth'))
+        )
