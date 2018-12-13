@@ -15,6 +15,7 @@ class ReplayBuffer:
         ======
             buffer_size (int): maximum size of buffer
             batch_size (int): size of each training batch
+            seed (int): random seed
         """
         self.seed = random.seed(seed)
         self.memory = deque(maxlen=buffer_size)
