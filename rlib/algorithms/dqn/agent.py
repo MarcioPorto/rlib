@@ -5,12 +5,13 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
+from rlib.algorithms.base import Agent
 from rlib.algorithms.dqn.model import QNetwork
 from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class DQNAgent:
+class DQNAgent(Agent):
     """Interacts with and learns from the environment."""
 
     # TODO: Consider how to extend this to accept multiple agents?
@@ -90,6 +91,14 @@ class DQNAgent:
         # User options
         self.opt_soft_update = opt_soft_update
         self.opt_ddqn = opt_ddqn
+
+        # TODO: Add option to provide this
+        self.model_dir = None
+
+        self.struct = [
+            (self.qnetwork_local, "qnetwork_local_params"),
+            (self.optimizer, "optimizer_params"),
+        ]
 
         # Ensure local and target networks have the same initial weight
         hard_update(self.qnetwork_local, self.qnetwork_target)
@@ -176,31 +185,11 @@ class DQNAgent:
             if self.time_step % REQUIRED_HYPERPARAMETERS["hard_update_every"] == 0:
                 hard_update(self.qnetwork_local, self.qnetwork_target)
 
-    def print_network(self):
-        r"""Helper to print network architecture for the agent."""
-        print("Q-Network (Local):")
-        print(self.qnetwork_local)
-        print("Q-Network (Target):")
-        print(self.qnetwork_target)
-
-    def save_model(self):
-        r"""Saves model weights to file."""
-        # TODO: Move to base class of create helpers
-        torch.save(
-            self.qnetwork_local.state_dict(),
-            os.path.join(self.model_dir, 'qnetwork_local_params.pth')
-        )
-        torch.save(
-            self.optimizer.state_dict(),
-            os.path.join(self.model_dir, 'optimizer_params.pth')
-        )
-
-    def load_model(self):
-        r"""Loads weights from saved model."""
-        # TODO: Move to base class of create helpers
-        self.qnetwork_local.load_state_dict(
-            torch.load(os.path.join(self.model_dir, 'qnetwork_local_params.pth'))
-        )
-        self.optimizer.load_state_dict(
-            torch.load(os.path.join(self.model_dir, 'optimizer_params.pth'))
-        )
+    def __str__(self):
+        r"""Helper to output network architecture for the agent."""
+        return ("{}\n{}\n{}\n{}".format(
+            "Q-Network (Local):",
+            self.qnetwork_local,
+            "Q-Network (Target):",
+            self.qnetwork_target
+        ))
