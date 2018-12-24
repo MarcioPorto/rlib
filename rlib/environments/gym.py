@@ -3,6 +3,7 @@ from collections import deque
 import gym
 import matplotlib.pyplot as plt
 import numpy as np
+import progressbar
 
 from rlib.environments.base import BaseEnvironment
 
@@ -18,10 +19,6 @@ class GymEnvironment(BaseEnvironment):
         self.episode_scores = []
 
     @property
-    def num_agents(self):
-        return len(self.agents)
-
-    @property
     def observation_size(self):
         return self.observation_space.shape[0]
 
@@ -35,7 +32,7 @@ class GymEnvironment(BaseEnvironment):
             agents = [agents]
         self.agents = agents
 
-    def train(self, num_episodes=100, max_t=100, scores_deque_size=100):
+    def train(self, num_episodes=100, max_t=None, scores_deque_size=100):
         self.episode_scores = []
 
         for i_episode in range(1, num_episodes+1):
@@ -43,14 +40,18 @@ class GymEnvironment(BaseEnvironment):
             scores = np.zeros(self.num_agents)
             self.reset_noise()
 
-            # TODO: Refactor to act as while when max_t is None
-            for t in range(1, max_t+1):
+            t = 1
+            while True:
+                if max_t and t == max_t + 1:
+                    break
+
                 action = self.act(observation, add_noise=True)
                 next_observation, reward, done, _ = self.env.step(action)
                 self.step(observation, action, reward, next_observation, done)
 
                 observation = next_observation
                 scores += reward
+                t += 1
 
                 if done:
                     break
