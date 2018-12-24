@@ -1,4 +1,8 @@
 class BaseEnvironment:
+    @property
+    def num_agents(self):
+        return len(self.agents)
+
     def act(self, observations, add_noise=False):
         r"""Picks an action for each agent given their individual observations."""
         actions = []
