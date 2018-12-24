@@ -4,6 +4,10 @@ import torch
 
 
 class Agent:
+    def reset(self):
+        if hasattr(self, "noise"):
+            self.noise.reset()
+
     def save_state_dicts(self):
         r"""Save state dicts to file."""
         if not self.model_output_dir:

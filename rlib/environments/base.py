@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class BaseEnvironment:
     @property
     def num_agents(self):
@@ -5,10 +8,13 @@ class BaseEnvironment:
 
     def act(self, observations, add_noise=False):
         r"""Picks an action for each agent given their individual observations."""
-        actions = []
-        for agent, observation in zip(self.agents, observations):
-            action = agent.act(observation, add_noise=add_noise)
-            actions.append(action)
+        if self.num_env_agents > 1:
+            actions = []
+            for agent, observation in zip(self.agents, observations):
+                action = agent.act(observation, add_noise=add_noise)
+                actions.append(action)
+        else:
+            actions = [self.agents[0].act(observations, add_noise=add_noise)]
         return np.array(actions)
 
     def step(self, observation, action, reward, next_observation, done):
@@ -21,9 +27,8 @@ class BaseEnvironment:
         for agent in self.agents:
             agent.step(observation, action, reward, next_observation, done)
 
-    def reset_noise(self):
+    def reset_agents(self):
         r"""Resets each individual agent."""
-        # TODO: Explore how to only do this if an agent has noise defined
         for agent in self.agents:
             agent.reset()
 

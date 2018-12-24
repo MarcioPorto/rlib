@@ -15,6 +15,7 @@ class DQNAgent(Agent):
     """Interacts with and learns from the environment."""
 
     # TODO: Consider how to extend this to accept multiple agents?
+    # TODO: Add noise to DQN?
 
     # TODO: Ensure that this cannot be changed in other ways
     # TODO: Look up original value for these params
@@ -85,6 +86,7 @@ class DQNAgent(Agent):
         self.memory = ReplayBuffer(
             self.REQUIRED_HYPERPARAMETERS["buffer_size"],
             self.REQUIRED_HYPERPARAMETERS["batch_size"],
+            self.device,
             seed
         )
 
@@ -125,15 +127,16 @@ class DQNAgent(Agent):
         if self.time_step % self.REQUIRED_HYPERPARAMETERS["learn_every"] == 0:
             if len(self.memory) > self.REQUIRED_HYPERPARAMETERS["batch_size"]:
                 experiences = self.memory.sample()
-                self.learn(experiences, self.REQUIRED_HYPERPARAMETERS["gamma"])
+                self.learn(experiences)
 
-    def act(self, state, eps=0.0):
+    def act(self, state, eps=0.0, add_noise=False):
         r"""Returns actions for given state as per current policy.
 
         Params
         ======
             state (numpy array): Current state
             eps (float): Epsilon, for Epsilon-greedy action selection
+            add_noise (boolean): Add noise to the agent's actions?
         """
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         self.qnetwork_local.eval()
@@ -165,13 +168,13 @@ class DQNAgent(Agent):
             _, next_state_actions = self.qnetwork_local(non_final_next_states).max(1, keepdim=True)
             next_Q_targets = self.qnetwork_target(non_final_next_states).gather(1, next_state_actions)
             target_Q = rewards + (gamma * next_Q_targets * (1 - dones))
-            expected_Q = self.qnetwork_local(states).gather(1, actions)
         else:
             # Vanilla DQN
             next_max_a = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
-            # (1 - dones) ignores the actions that ended the game
             target_Q = rewards + (gamma * next_max_a * (1 - dones))
-            expected_Q = self.qnetwork_local(states).gather(1, actions)
+
+        expected_Q = self.qnetwork_local(states)
+        expected_Q = torch.gather(expected_Q, 1, actions.long())
 
         # Compute and minimize the loss
         loss = F.mse_loss(expected_Q, target_Q)
