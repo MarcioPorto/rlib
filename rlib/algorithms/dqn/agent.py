@@ -37,6 +37,7 @@ class DQNAgent(Agent):
                  new_hyperparameters=None,
                  seed=0,
                  device="cpu",
+                 model_output_dir=None,
                  opt_soft_update=False,
                  opt_ddqn=False):
         r"""Initialize an Agent object.
@@ -51,6 +52,7 @@ class DQNAgent(Agent):
             new_hyperparameters (dict): New hyperparameter values
             seed (int): Random seed
             device (str): Identifier for device to be used by PyTorch
+            model_output_dir (str): Directory where state dicts will be saved to
             opt_soft_update (bool): Use soft update instead of hard update
             opt_ddqn (bool): Use Double DQN for `expected_Q`
         """
@@ -77,12 +79,12 @@ class DQNAgent(Agent):
         else:
             self.optimizer = optim.Adam(
                 self.qnetwork_local.parameters(),
-                lr=REQUIRED_HYPERPARAMETERS["learning_rate"]
+                lr=self.REQUIRED_HYPERPARAMETERS["learning_rate"]
             )
 
         self.memory = ReplayBuffer(
-            REQUIRED_HYPERPARAMETERS["buffer_size"],
-            REQUIRED_HYPERPARAMETERS["batch_size"],
+            self.REQUIRED_HYPERPARAMETERS["buffer_size"],
+            self.REQUIRED_HYPERPARAMETERS["batch_size"],
             seed
         )
 
@@ -92,8 +94,7 @@ class DQNAgent(Agent):
         self.opt_soft_update = opt_soft_update
         self.opt_ddqn = opt_ddqn
 
-        # TODO: Add option to provide this
-        self.model_dir = None
+        self.model_output_dir = model_output_dir
 
         self.struct = [
             (self.qnetwork_local, "qnetwork_local_params"),
@@ -121,10 +122,10 @@ class DQNAgent(Agent):
 
         # Learn every `learn_every` time steps
         self.time_step += 1
-        if self.time_step % REQUIRED_HYPERPARAMETERS["learn_every"] == 0:
-            if len(self.memory) > REQUIRED_HYPERPARAMETERS["batch_size"]:
+        if self.time_step % self.REQUIRED_HYPERPARAMETERS["learn_every"] == 0:
+            if len(self.memory) > self.REQUIRED_HYPERPARAMETERS["batch_size"]:
                 experiences = self.memory.sample()
-                self.learn(experiences, REQUIRED_HYPERPARAMETERS["gamma"])
+                self.learn(experiences, self.REQUIRED_HYPERPARAMETERS["gamma"])
 
     def act(self, state, eps=0.0):
         r"""Returns actions for given state as per current policy.
@@ -182,7 +183,7 @@ class DQNAgent(Agent):
         if self.opt_soft_update:
             soft_update(self.qnetwork_local, self.qnetwork_target, TAU)
         else:
-            if self.time_step % REQUIRED_HYPERPARAMETERS["hard_update_every"] == 0:
+            if self.time_step % self.REQUIRED_HYPERPARAMETERS["hard_update_every"] == 0:
                 hard_update(self.qnetwork_local, self.qnetwork_target)
 
     def __str__(self):
