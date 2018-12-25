@@ -15,15 +15,6 @@ class GymEnvironment(BaseEnvironment):
 
         self.episode_scores = []
 
-    def start_env(self):
-        self.env = gym.make(self._env_name)
-        self.env.seed(self.seed)
-        self.observation_space = self.env.observation_space
-        self.action_space = self.env.action_space
-
-    def close_env(self):
-        self.env.close()
-
     @property
     def observation_size(self):
         return self.observation_space.shape[0]
@@ -35,6 +26,15 @@ class GymEnvironment(BaseEnvironment):
     @property
     def num_env_agents(self):
         return 1 if len(self.observation_space.shape) == 1 else self.observation_space.shape[0]
+
+    def start_env(self):
+        self.env = gym.make(self._env_name)
+        self.env.seed(self.seed)
+        self.observation_space = self.env.observation_space
+        self.action_space = self.env.action_space
+
+    def close_env(self):
+        self.env.close()
 
     def set_agents(self, agents):
         r"""Sets the agents that will be used in this environment."""
@@ -89,8 +89,9 @@ class GymEnvironment(BaseEnvironment):
         return self.episode_scores
 
     def test(self, num_episodes=5, load_state_dicts=False, render=True):
-        # TODO: Use load_state_dicts
-        # TODO: Add game scores for competitive environment?
+        if load_state_dicts:
+            self.load_state_dicts()
+
         self.start_env()
 
         for i in range(1, num_episodes+1):

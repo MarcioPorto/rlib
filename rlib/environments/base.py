@@ -32,6 +32,16 @@ class BaseEnvironment:
         for agent in self.agents:
             agent.reset()
 
+    def save_state_dicts(self):
+        r"""Wrapper to save state dicts for each individual agent."""
+        for agent in self.agents:
+            agent.save_state_dicts()
+
+    def load_state_dicts(self):
+        r"""Wrapper to load state dicts for each individual agent."""
+        for agent in self.agents:
+            agent.load_state_dicts()
+
     def plot_scores(self, scores=None, env_solved_score=None):
         r"""Plots scores for each episode.
 
