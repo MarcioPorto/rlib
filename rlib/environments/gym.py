@@ -8,10 +8,19 @@ from rlib.environments.base import BaseEnvironment
 
 class GymEnvironment(BaseEnvironment):
     def __init__(self, env_name, seed=0):
+        r"""Initializes an OpenAI Gym environment
+
+        Params
+        ======
+        env_name (str): Name of an OpenAI Gym environment
+        seed (int): Environment seed
+        """
         self._env_name = env_name
         self.seed = seed
 
         self.start_env()
+        self.observation_space = self.env.observation_space
+        self.action_space = self.env.action_space
 
         self.episode_scores = []
 
@@ -28,16 +37,21 @@ class GymEnvironment(BaseEnvironment):
         return 1 if len(self.observation_space.shape) == 1 else self.observation_space.shape[0]
 
     def start_env(self):
+        r"""Helper to start an environment"""
         self.env = gym.make(self._env_name)
         self.env.seed(self.seed)
-        self.observation_space = self.env.observation_space
-        self.action_space = self.env.action_space
 
     def close_env(self):
+        r"""Helper to close an environment"""
         self.env.close()
 
     def set_agents(self, agents):
-        r"""Sets the agents that will be used in this environment."""
+        r"""Sets the agents that will be used in this environment.
+
+        Params
+        ======
+        agents (list): List of agents for this environment
+        """
         if not isinstance(agents, list):
             agents = [agents]
         if len(agents) > self.num_env_agents:
@@ -45,6 +59,15 @@ class GymEnvironment(BaseEnvironment):
         self.agents = agents
 
     def train(self, num_episodes=100, max_t=None, add_noise=True, scores_window_size=100):
+        r"""Trains agent(s) through interaction with this environment.
+
+        Params
+        ======
+        num_episodes (int): Number of episodes to train the agent for
+        max_t (int): Maximum number of timesteps in an episode
+        add_noise (boolean): Add noise to actions
+        scores_window_size (int): Window size for average score display
+        """
         widget = [
             "Episode: ", pb.Counter(), '/' , str(num_episodes), ' ',
             pb.Percentage(), ' ', pb.ETA(), ' ', pb.Bar(marker=pb.RotatingMarker()), ' ',
@@ -89,6 +112,14 @@ class GymEnvironment(BaseEnvironment):
         return self.episode_scores
 
     def test(self, num_episodes=5, load_state_dicts=False, render=True):
+        r"""Runs trained agent(s) in this environment.
+
+        Params
+        ======
+        num_episodes (int): Number of episodes to run this test for
+        load_state_dicts (boolean): Load state dicts for each agent
+        render (boolean): Render environment state
+        """
         if load_state_dicts:
             self.load_state_dicts()
 
