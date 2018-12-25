@@ -47,6 +47,7 @@ class GymEnvironment(BaseEnvironment):
         self.episode_scores = []
 
         for i_episode in range(1, num_episodes+1):
+            # TODO: Check progress bar
             current_average = self.get_current_average_score(scores_window_size)
             widget[12] = pb.FormatLabel(str(current_average)[:6])
             timer.update(i_episode)
@@ -77,7 +78,21 @@ class GymEnvironment(BaseEnvironment):
 
         return self.episode_scores
 
-    def test(self, load_state_dicts):
-        # TODO: Implement
-        # TODO: Handle environments with multiple agents
-        pass
+    def test(self, num_episodes=5, load_state_dicts=False):
+        # TODO: Use load_state_dicts
+        # TODO: Add game scores for competitive environment?
+
+        for i in range(1, num_episodes+1):
+            observation = self.env.reset()
+            scores = np.zeros(self.num_env_agents)
+
+            while True:
+                self.env.render()
+                action = self.act(observation)
+                next_observation, reward, done, _ = self.env.step(action)
+                scores += reward
+
+                if np.any(done):
+                    break
+
+                observation = next_observation
