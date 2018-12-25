@@ -74,3 +74,7 @@ class BaseEnvironment:
                 s = self.episode_scores[i-window:i+1]
                 average_score = np.mean(s)
             rolling_score_averages.append(average_score)
+
+    def get_current_average_score(self, window):
+        s = len(self.episode_scores)
+        return np.mean(self.episode_scores) if s <= window else np.mean(self.episode_scores[s-window:])

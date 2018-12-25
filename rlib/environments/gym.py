@@ -1,9 +1,7 @@
-from collections import deque
-
 import gym
 import matplotlib.pyplot as plt
 import numpy as np
-import progressbar
+import progressbar as pb
 
 from rlib.environments.base import BaseEnvironment
 
@@ -38,10 +36,21 @@ class GymEnvironment(BaseEnvironment):
             raise ValueError("Cannot have more agents than the environment can handle.")
         self.agents = agents
 
-    def train(self, num_episodes=100, max_t=None, add_noise=True, scores_deque_size=100):
+    def train(self, num_episodes=100, max_t=None, add_noise=True, scores_window_size=100):
+        widget = [
+            "Episode: ", pb.Counter(), '/' , str(num_episodes), ' ',
+            pb.Percentage(), ' ', pb.ETA(), ' ', pb.Bar(marker=pb.RotatingMarker()), ' ',
+            'Rolling Average: ', pb.FormatLabel('')
+        ]
+        timer = pb.ProgressBar(widgets=widget, maxval=num_episodes).start()
+
         self.episode_scores = []
 
         for i_episode in range(1, num_episodes+1):
+            current_average = self.get_current_average_score(scores_window_size)
+            widget[12] = pb.FormatLabel(str(current_average)[:6])
+            timer.update(i_episode)
+
             observation = self.env.reset()
             scores = np.zeros(self.num_agents)
             self.reset_agents()
@@ -65,7 +74,6 @@ class GymEnvironment(BaseEnvironment):
             self.episode_scores.append(scores)
 
             # TODO: Add a save_every option
-            # TODO: Add a print progress option (progressbar)
 
         return self.episode_scores
 
