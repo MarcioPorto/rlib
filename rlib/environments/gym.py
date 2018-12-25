@@ -8,13 +8,21 @@ from rlib.environments.base import BaseEnvironment
 
 class GymEnvironment(BaseEnvironment):
     def __init__(self, env_name, seed=0):
-        self.env = gym.make(env_name)
-        self.env.seed(seed)
+        self._env_name = env_name
+        self.seed = seed
 
+        self.start_env()
+
+        self.episode_scores = []
+
+    def start_env(self):
+        self.env = gym.make(self._env_name)
+        self.env.seed(self.seed)
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
 
-        self.episode_scores = []
+    def close_env(self):
+        self.env.close()
 
     @property
     def observation_size(self):
@@ -44,6 +52,7 @@ class GymEnvironment(BaseEnvironment):
         ]
         timer = pb.ProgressBar(widgets=widget, maxval=num_episodes).start()
 
+        self.start_env()
         self.episode_scores = []
 
         for i_episode in range(1, num_episodes+1):
@@ -76,18 +85,22 @@ class GymEnvironment(BaseEnvironment):
 
             # TODO: Add a save_every option
 
+        self.close_env()
         return self.episode_scores
 
-    def test(self, num_episodes=5, load_state_dicts=False):
+    def test(self, num_episodes=5, load_state_dicts=False, render=True):
         # TODO: Use load_state_dicts
         # TODO: Add game scores for competitive environment?
+        self.start_env()
 
         for i in range(1, num_episodes+1):
             observation = self.env.reset()
             scores = np.zeros(self.num_env_agents)
 
             while True:
-                self.env.render()
+                if render:
+                    self.env.render()
+
                 action = self.act(observation)
                 next_observation, reward, done, _ = self.env.step(action)
                 scores += reward
@@ -96,3 +109,5 @@ class GymEnvironment(BaseEnvironment):
                     break
 
                 observation = next_observation
+
+        self.close_env()
