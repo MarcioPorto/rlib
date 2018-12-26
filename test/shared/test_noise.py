@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from numpy import testing as nptesting
 
-from rlib.utils.noise import OUNoise
+from rlib.shared.noise import OUNoise
 
 
 class OUNoiseTest(unittest.TestCase):
