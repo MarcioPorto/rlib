@@ -55,6 +55,11 @@ class VPGAgent(Agent):
                 lr=self.REQUIRED_HYPERPARAMETERS["learning_rate"]
             )
 
+        self.state_dicts = [
+            (self.policy, "policy_params"),
+            (self.optimizer, "optimizer_params"),
+        ]
+
         self.saved_log_probs = []
         self.model_output_dir = model_output_dir
 

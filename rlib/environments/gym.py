@@ -45,9 +45,13 @@ class GymEnvironment(BaseEnvironment):
 
         self.episode_scores = []
 
-    def env_info(self):
-        # TODO: Could even overload __str__
-        pass
+    def __str__(self):
+        r"""Helper to print information about this environment."""
+        return ("{}\n{}\n{}".format(
+            "Environment name: {}".format(self._env_name),
+            "Observation space: {}".format(self.observation_space),
+            "Action space: {}".format(self.action_space),
+        ))
 
     def start_env(self):
         r"""Helper to start an environment"""
