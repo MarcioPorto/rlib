@@ -13,9 +13,13 @@ class BaseEnvironment:
             for agent, observation in zip(self.agents, observations):
                 action = agent.act(observation, add_noise=add_noise)
                 actions.append(action)
+            return np.array(actions)
         else:
-            actions = [self.agents[0].act(observations, add_noise=add_noise)]
-        return np.array(actions)
+            action = self.agents[0].act(observations, add_noise=add_noise)
+            if self.action_type == list:
+                return np.array([action])
+            else:
+                return action
 
     def step(self, observation, action, reward, next_observation, done):
         r"""Step helper for each agent.
@@ -26,6 +30,14 @@ class BaseEnvironment:
         """
         for agent in self.agents:
             agent.step(observation, action, reward, next_observation, done)
+
+    def update(self, rewards):
+        # TODO: Make sure the zip actually works
+        if self.num_env_agents > 1:
+            for agent, reward in zip(self.agents, rewards):
+                agent.update(reward)
+        else:
+            self.agents[0].update(rewards)
 
     def reset_agents(self):
         r"""Resets each individual agent."""
