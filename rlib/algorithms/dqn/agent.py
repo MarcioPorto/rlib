@@ -98,7 +98,7 @@ class DQNAgent(Agent):
 
         self.model_output_dir = model_output_dir
 
-        self.struct = [
+        self.state_dicts = [
             (self.qnetwork_local, "qnetwork_local_params"),
             (self.optimizer, "optimizer_params"),
         ]

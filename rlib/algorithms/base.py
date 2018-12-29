@@ -5,6 +5,7 @@ import torch
 
 class Agent:
     # TODO: Move common agent initialization here
+    # TODO: How to require anything inheriting from this to implement certain methods?
 
     def reset(self):
         if hasattr(self, "noise"):
@@ -36,10 +37,10 @@ class Agent:
         if not self.model_output_dir:
             raise Exception("You must provide an output directory to save state dict.")
 
-        for comb in self.struct:
+        for sd in self.state_dicts:
             torch.save(
                 comb[0].state_dict(),
-                os.path.join(self.model_output_dir, "{}.pth".format(comb[1]))
+                os.path.join(self.model_output_dir, "{}.pth".format(sd[1]))
             )
 
     def load_state_dicts(self):
@@ -47,7 +48,7 @@ class Agent:
         if not self.model_output_dir:
             raise Exception("You must provide an input directory to load state dict.")
 
-        for comb in self.struct:
+        for sd in self.state_dicts:
             comb[0].load_state_dict(
-                torch.load(os.path.join(self.model_output_dir, "{}.pth".format(comb[1])))
+                torch.load(os.path.join(self.model_output_dir, "{}.pth".format(sd[1])))
             )
