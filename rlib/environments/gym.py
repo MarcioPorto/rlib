@@ -19,14 +19,20 @@ class GymEnvironment(BaseEnvironment):
         self.seed = seed
 
         self.start_env()
+
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
 
+        self.num_env_agents = 1
+        self.observation_type = None
         self.observation_size = None
         if isinstance(self.observation_space, gym.spaces.box.Box):
+            self.num_env_agents = 1 if len(self.observation_space.shape) == 1 else self.observation_space.shape[0]
             self.observation_size = self.observation_space.shape[0]
+            self.observation_type = list
         elif isinstance(self.observation_space, gym.spaces.discrete.Discrete):
             self.observation_size = self.observation_space.n
+            self.observation_type = int
 
         self.action_type = None
         self.action_size = None
@@ -38,24 +44,6 @@ class GymEnvironment(BaseEnvironment):
             self.action_type = int
 
         self.episode_scores = []
-
-    # @property
-    # def observation_size(self):
-    #     if isinstance(self.observation_space, gym.spaces.box.Box):
-    #         return self.observation_space.shape[0]
-    #     elif isinstance(self.observation_space, gym.spaces.discrete.Discrete):
-    #         return self.observation_space.n
-
-    # @property
-    # def action_size(self):
-    #     if isinstance(self.action_space, gym.spaces.box.Box):
-    #         return self.action_space.shape[0]
-    #     elif isinstance(self.action_space, gym.spaces.discrete.Discrete):
-    #         return self.action_space.n
-
-    @property
-    def num_env_agents(self):
-        return 1 if len(self.observation_space.shape) == 1 else self.observation_space.shape[0]
 
     def env_info(self):
         # TODO: Could even overload __str__
