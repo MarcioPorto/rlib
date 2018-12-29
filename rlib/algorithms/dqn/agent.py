@@ -106,18 +106,6 @@ class DQNAgent(Agent):
         # Ensure local and target networks have the same initial weight
         hard_update(self.qnetwork_local, self.qnetwork_target)
 
-    def get_hyperparameters(self):
-        r"""Returns the current state of the required hyperparameters"""
-        return self.REQUIRED_HYPERPARAMETERS
-
-    def _set_hyperparameters(self, new_hyperparameters):
-        r"""Adds user defined hyperparameter values to the list required
-        hyperparameters.
-        """
-        for key, value in new_hyperparameters.items():
-            if key in self.REQUIRED_HYPERPARAMETERS.keys():
-                self.REQUIRED_HYPERPARAMETERS[key] = value
-
     def step(self, state, action, reward, next_state, done):
         r"""Saves experience to replay memory and updates model weights"""
         self.memory.add(state, action, reward, next_state, done)
