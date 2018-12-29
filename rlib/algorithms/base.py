@@ -4,9 +4,32 @@ import torch
 
 
 class Agent:
+    # TODO: Move common agent initialization here
+
     def reset(self):
         if hasattr(self, "noise"):
             self.noise.reset()
+
+    def act(self, state, add_noise=False):
+        pass
+
+    def step(self, state, action, reward, next_state, done):
+        pass
+
+    def update(self, rewards):
+        pass
+
+    def get_hyperparameters(self):
+        r"""Returns the current state of the required hyperparameters"""
+        return self.REQUIRED_HYPERPARAMETERS
+
+    def _set_hyperparameters(self, new_hyperparameters):
+        r"""Adds user defined hyperparameter values to the list required
+        hyperparameters.
+        """
+        for key, value in new_hyperparameters.items():
+            if key in self.REQUIRED_HYPERPARAMETERS.keys():
+                self.REQUIRED_HYPERPARAMETERS[key] = value
 
     def save_state_dicts(self):
         r"""Save state dicts to file."""
