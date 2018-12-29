@@ -75,7 +75,8 @@ class GymEnvironment(BaseEnvironment):
             raise ValueError("Cannot have more agents than the environment can handle.")
         self.agents = agents
 
-    def train(self, num_episodes=100, max_t=None, add_noise=True, scores_window_size=100):
+    def train(self, num_episodes=100, max_t=None, add_noise=True, scores_window_size=100,
+              save_every=None):
         r"""Trains agent(s) through interaction with this environment.
 
         Params
@@ -84,6 +85,7 @@ class GymEnvironment(BaseEnvironment):
         max_t (int): Maximum number of timesteps in an episode
         add_noise (boolean): Add noise to actions
         scores_window_size (int): Window size for average score display
+        save_every (int): Save state dicts every `save_every` episodes
         """
         widget = [
             "Episode: ", pb.Counter(), '/' , str(num_episodes), ' ',
@@ -126,7 +128,8 @@ class GymEnvironment(BaseEnvironment):
             self.episode_scores.append(scores)
             self.update(rewards)
 
-            # TODO: Add a save_every option
+            if save_every and i_episode % save_every == 0:
+                self.save_state_dicts()
 
         self.close_env()
         return self.episode_scores
