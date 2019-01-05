@@ -57,8 +57,9 @@ class DQNAgent(Agent):
             opt_soft_update (bool): Use soft update instead of hard update
             opt_ddqn (bool): Use Double DQN for `expected_Q`
         """
-        if new_hyperparameters:
-            self._set_hyperparameters(new_hyperparameters)
+        super(DQNAgent, self).__init__(
+            new_hyperparameters=new_hyperparameters
+        )
 
         self.state_size = state_size
         self.action_size = action_size
@@ -80,15 +81,11 @@ class DQNAgent(Agent):
         else:
             self.optimizer = optim.Adam(
                 self.qnetwork_local.parameters(),
-                lr=self.REQUIRED_HYPERPARAMETERS["learning_rate"]
+                lr=self.LEARNING_RATE
             )
 
-        self.memory = ReplayBuffer(
-            self.REQUIRED_HYPERPARAMETERS["buffer_size"],
-            self.REQUIRED_HYPERPARAMETERS["batch_size"],
-            self.device,
-            seed
-        )
+        # Replay memory
+        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, self.device, seed)
 
         self.time_step = 0
 
@@ -112,8 +109,8 @@ class DQNAgent(Agent):
 
         # Learn every `learn_every` time steps
         self.time_step += 1
-        if self.time_step % self.REQUIRED_HYPERPARAMETERS["learn_every"] == 0:
-            if len(self.memory) > self.REQUIRED_HYPERPARAMETERS["batch_size"]:
+        if self.time_step % self.LEARN_EVERY == 0:
+            if len(self.memory) > self.BATCH_SIZE:
                 experiences = self.memory.sample()
                 self.learn(experiences)
 
@@ -147,19 +144,17 @@ class DQNAgent(Agent):
         """
         states, actions, rewards, next_states, dones = experiences
 
-        gamma = self.REQUIRED_HYPERPARAMETERS["gamma"]
-
         if self.opt_ddqn:
             # Double DQN
             non_final_next_states = next_states * (1 - dones)
             # Get the actions themselves, not their output value
             _, next_state_actions = self.qnetwork_local(non_final_next_states).max(1, keepdim=True)
             next_Q_targets = self.qnetwork_target(non_final_next_states).gather(1, next_state_actions)
-            target_Q = rewards + (gamma * next_Q_targets * (1 - dones))
+            target_Q = rewards + (self.GAMMA * next_Q_targets * (1 - dones))
         else:
             # Vanilla DQN
             next_max_a = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
-            target_Q = rewards + (gamma * next_max_a * (1 - dones))
+            target_Q = rewards + (self.GAMMA * next_max_a * (1 - dones))
 
         expected_Q = self.qnetwork_local(states)
         expected_Q = torch.gather(expected_Q, 1, actions.long())
@@ -172,9 +167,9 @@ class DQNAgent(Agent):
 
         # Update target network
         if self.opt_soft_update:
-            soft_update(self.qnetwork_local, self.qnetwork_target, TAU)
+            soft_update(self.qnetwork_local, self.qnetwork_target, self.TAU)
         else:
-            if self.time_step % self.REQUIRED_HYPERPARAMETERS["hard_update_every"] == 0:
+            if self.time_step % self.HARD_UPDATE_EVERY == 0:
                 hard_update(self.qnetwork_local, self.qnetwork_target)
 
     def __str__(self):

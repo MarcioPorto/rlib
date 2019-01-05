@@ -16,7 +16,6 @@ class VPGAgent(Agent):
     # TODO: Consider how to extend this to accept multiple agents?
     # TODO: Ensure that this cannot be changed in other ways
     # TODO: Look up original value for these params
-    # TODO: Move this to base agent and change necessary variables?
     REQUIRED_HYPERPARAMETERS = {
         "gamma": 1.0,
         "learning_rate": 1e-2
@@ -31,8 +30,9 @@ class VPGAgent(Agent):
                  seed=0,
                  device="cpu",
                  model_output_dir=None):
-        if new_hyperparameters:
-            self._set_hyperparameters(new_hyperparameters)
+        super(DDPGAgent, self).__init__(
+            new_hyperparameters=new_hyperparameters
+        )
 
         # TODO: Single interface for seeding
         self.seed = random.seed(seed)
@@ -52,7 +52,7 @@ class VPGAgent(Agent):
         else:
             self.optimizer = optim.Adam(
                 self.policy.parameters(),
-                lr=self.REQUIRED_HYPERPARAMETERS["learning_rate"]
+                lr=self.LEARNING_RATE
             )
 
         self.state_dicts = [
@@ -77,7 +77,7 @@ class VPGAgent(Agent):
 
     def update(self, rewards):
         discounts = [
-            self.REQUIRED_HYPERPARAMETERS["gamma"]**i
+            self.GAMMA**i
             for i in range(len(rewards)+1)
         ]
         R = sum([a * b for a, b in zip(discounts, rewards)])

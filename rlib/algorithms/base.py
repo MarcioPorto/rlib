@@ -4,8 +4,15 @@ import torch
 
 
 class Agent:
-    # TODO: Move common agent initialization here
-    # TODO: How to require anything inheriting from this to implement certain methods?
+    REQUIRED_HYPERPARAMETERS = {}
+
+    def __init__(self, *args, **kwargs):
+        if "new_hyperparameters" in kwargs:
+            if isinstance(kwargs["new_hyperparameters"], dict):
+                self._set_hyperparameters(kwargs["new_hyperparameters"])
+
+        for key, value in self.REQUIRED_HYPERPARAMETERS.items():
+            setattr(self, key.upper(), value)
 
     def reset(self):
         if hasattr(self, "noise"):
