@@ -65,6 +65,7 @@ class DQN(Agent):
         self.action_size = action_size
         self.seed = random.seed(seed)
         self.device = device
+        self.time_step = 0
 
         if qnetwork_local:
             self.qnetwork_local = qnetwork_local
@@ -86,8 +87,6 @@ class DQN(Agent):
 
         # Replay memory
         self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, self.device, seed)
-
-        self.time_step = 0
 
         # User options
         self.opt_soft_update = opt_soft_update
@@ -177,6 +176,5 @@ class DQN(Agent):
         # Update target network
         if self.opt_soft_update:
             soft_update(self.qnetwork_local, self.qnetwork_target, self.TAU)
-        else:
-            if self.time_step % self.HARD_UPDATE_EVERY == 0:
-                hard_update(self.qnetwork_local, self.qnetwork_target)
+        elif self.time_step % self.HARD_UPDATE_EVERY == 0:
+            hard_update(self.qnetwork_local, self.qnetwork_target)
