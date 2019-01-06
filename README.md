@@ -14,10 +14,11 @@ Using `rlib` is this simple:
 from rlib.algorithms.dqn.agent import DQNAgent
 from rlib.environments.gym import GymEnvironment
 
-gym_env = GymEnvironment("Pendulum-v0")
-dqn_agent = DQNAgent(gym_env.observation_size, gym_env.action_size, seed=seed)
-gym_env.set_agents([dqn_agent])
-gym_env.train()
+env = GymEnvironment("CartPole-v0")
+dqn = DQNAgent(env.observation_size, env.action_size, seed=seed)
+env.set_algorithm(dqn)
+env.train()
+env.test()
 ```
 
 ## Testing
