@@ -54,8 +54,8 @@ class DDPG(Agent):
 
         self.state_size = state_size
         self.action_size = action_size
-        self.seed = random.seed(seed)
         self.num_agents = num_agents
+        self.seed = random.seed(seed)
         self.device = device
 
         # Actor Network (w/ Target Network)
@@ -104,36 +104,51 @@ class DDPG(Agent):
         ))
 
     def step(self, states, actions, rewards, next_states, dones):
-        # TODO: Refactor num_Agents out
-        # TODO: How to use shared experience replay?
-
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward tuple for each agent to a shared replay buffer before sampling
-        for i in range(self.num_agents):
-            self.memory.add(states[i], actions[i], rewards[i], next_states[i], dones[i])
+        if self.num_agents == 1:
+            self.memory.add(states, actions, rewards, next_states, dones)
+        else:
+            # TODO: Refactor this to not assume that the objects come in correct shape
+            for i in range(self.num_agents):
+                self.memory.add(states[i], actions[i], rewards[i], next_states[i], dones[i])
 
         # Learn, if enough samples are available in memory
         if len(self.memory) > self.BATCH_SIZE:
             experiences = self.memory.sample()
-            self.learn(experiences, self.GAMMA)
+            self.learn(experiences)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
-        states = torch.from_numpy(state).float().to(self.device)
-        actions = np.zeros((self.num_agents, self.action_size))
-        self.actor_local.eval()
-        with torch.no_grad():
-            for i, state in enumerate(states):
-                # Populate list of actions one state at a time
-                actions[i, :] = self.actor_local(state).cpu().data.numpy()
-        self.actor_local.train()
+        state = torch.from_numpy(state).float().to(self.device)
 
-        if add_noise:
-            action += self.noise.sample()
+        if self.num_agents == 1:
+            self.actor_local.eval()
+            with torch.no_grad():
+                action = self.actor_local(state).cpu().data.numpy()
+            self.actor_local.train()
 
-        # TODO: Have parameter that controls this?
-        # return np.clip(action, -1, 1)
-        return actions
+            if add_noise:
+                action += self.noise.sample()
+
+            # TODO: Have parameter that controls this?
+            # return np.clip(action, -1, 1)
+            return action
+        else:
+            actions = np.zeros((self.num_agents, self.action_size))
+            self.actor_local.eval()
+            with torch.no_grad():
+                for i, s in enumerate(state):
+                    # Populate list of actions one state at a time
+                    actions[i, :] = self.actor_local(s).cpu().data.numpy()
+            self.actor_local.train()
+
+            if add_noise:
+                actions += self.noise.sample()
+
+            # TODO: Have parameter that controls this?
+            # return np.clip(action, -1, 1)
+            return actions
 
     def learn(self, experiences):
         """Update policy and value parameters using given batch of experience tuples.
