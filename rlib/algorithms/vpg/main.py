@@ -10,7 +10,7 @@ from rlib.algorithms.base import Agent
 from rlib.algorithms.vpg.model import Policy
 
 
-class VPGAgent(Agent):
+class VPG(Agent):
     """Interacts with and learns from the environment."""
 
     # TODO: Consider how to extend this to accept multiple agents?
@@ -30,7 +30,7 @@ class VPGAgent(Agent):
                  seed=0,
                  device="cpu",
                  model_output_dir=None):
-        super(VPGAgent, self).__init__(
+        super(VPG, self).__init__(
             new_hyperparameters=new_hyperparameters
         )
 
