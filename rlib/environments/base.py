@@ -5,7 +5,8 @@ class BaseEnvironment:
     def act(self, observations, add_noise=False):
         r"""Picks an action for each agent given their individual observations."""
         action = self.algorithm.act(observations, add_noise=add_noise)
-        if self.action_type == list:
+
+        if self.action_type == list and not isinstance(action, np.ndarray):
             return np.array([action])
         else:
             return action

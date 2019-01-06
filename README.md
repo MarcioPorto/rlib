@@ -11,11 +11,11 @@ Coming soon.
 Using `rlib` is this simple:
 
 ```python
-from rlib.algorithms.dqn.agent import DQNAgent
+from rlib.algorithms.dqn import DQN
 from rlib.environments.gym import GymEnvironment
 
 env = GymEnvironment("CartPole-v0")
-dqn = DQNAgent(env.observation_size, env.action_size, seed=seed)
+dqn = DQN(env.observation_size, env.action_size, seed=seed)
 env.set_algorithm(dqn)
 env.train()
 env.test()
