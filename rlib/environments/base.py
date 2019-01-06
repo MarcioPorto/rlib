@@ -2,24 +2,13 @@ import numpy as np
 
 
 class BaseEnvironment:
-    @property
-    def num_agents(self):
-        return len(self.agents)
-
     def act(self, observations, add_noise=False):
         r"""Picks an action for each agent given their individual observations."""
-        if self.num_env_agents > 1:
-            actions = []
-            for agent, observation in zip(self.agents, observations):
-                action = agent.act(observation, add_noise=add_noise)
-                actions.append(action)
-            return np.array(actions)
+        action = self.algorithm.act(observations, add_noise=add_noise)
+        if self.action_type == list:
+            return np.array([action])
         else:
-            action = self.agents[0].act(observations, add_noise=add_noise)
-            if self.action_type == list:
-                return np.array([action])
-            else:
-                return action
+            return action
 
     def step(self, observation, action, reward, next_observation, done):
         r"""Step helper for each agent.
@@ -28,31 +17,23 @@ class BaseEnvironment:
         available. It is up to each individual agent implementation to decide
         what to do with that information.
         """
-        for agent in self.agents:
-            agent.step(observation, action, reward, next_observation, done)
+        self.algorithm.step(observation, action, reward, next_observation, done)
 
     def update(self, rewards):
-        # TODO: Make sure the zip actually works
-        if self.num_env_agents > 1:
-            for agent, reward in zip(self.agents, rewards):
-                agent.update(reward)
-        else:
-            self.agents[0].update(rewards)
+        # TODO: Make sure this will work with something like DDPG
+        self.algorithm.update(rewards)
 
-    def reset_agents(self):
+    def reset_algorithm(self):
         r"""Resets each individual agent."""
-        for agent in self.agents:
-            agent.reset()
+        self.algorithm.reset()
 
     def save_state_dicts(self):
         r"""Wrapper to save state dicts for each individual agent."""
-        for agent in self.agents:
-            agent.save_state_dicts()
+        self.algorithm.save_state_dicts()
 
     def load_state_dicts(self):
         r"""Wrapper to load state dicts for each individual agent."""
-        for agent in self.agents:
-            agent.load_state_dicts()
+        self.algorithm.load_state_dicts()
 
     def plot_scores(self, scores=None, env_solved_score=None):
         r"""Plots scores for each episode.

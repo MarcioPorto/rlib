@@ -119,10 +119,13 @@ class DDPGAgent(Agent):
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
-        state = torch.from_numpy(state).float().to(self.device)
+        states = torch.from_numpy(state).float().to(self.device)
+        actions = np.zeros((self.num_agents, self.action_size))
         self.actor_local.eval()
         with torch.no_grad():
-            action = self.actor_local(state).cpu().data.numpy()
+            for i, state in enumerate(states):
+                # Populate list of actions one state at a time
+                actions[i, :] = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
 
         if add_noise:
@@ -130,7 +133,7 @@ class DDPGAgent(Agent):
 
         # TODO: Have parameter that controls this?
         # return np.clip(action, -1, 1)
-        return action
+        return actions
 
     def learn(self, experiences):
         """Update policy and value parameters using given batch of experience tuples.

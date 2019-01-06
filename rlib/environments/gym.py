@@ -23,11 +23,11 @@ class GymEnvironment(BaseEnvironment):
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
 
-        self.num_env_agents = 1
+        self.num_agents = 1  # TODO: Get this dynamically once we have capability
         self.observation_type = None
         self.observation_size = None
         if isinstance(self.observation_space, gym.spaces.box.Box):
-            self.num_env_agents = 1 if len(self.observation_space.shape) == 1 else self.observation_space.shape[0]
+            self.num_agents = 1 if len(self.observation_space.shape) == 1 else self.observation_space.shape[0]
             self.observation_size = self.observation_space.shape[0]
             self.observation_type = list
         elif isinstance(self.observation_space, gym.spaces.discrete.Discrete):
@@ -62,18 +62,8 @@ class GymEnvironment(BaseEnvironment):
         r"""Helper to close an environment"""
         self.env.close()
 
-    def set_agents(self, agents):
-        r"""Sets the agents that will be used in this environment.
-
-        Params
-        ======
-        agents (list): List of agents for this environment
-        """
-        if not isinstance(agents, list):
-            agents = [agents]
-        if len(agents) > self.num_env_agents:
-            raise ValueError("Cannot have more agents than the environment can handle.")
-        self.agents = agents
+    def set_algorithm(self, algorithm):
+        self.algorithm = algorithm
 
     def train(self, num_episodes=100, max_t=None, add_noise=True, scores_window_size=100,
               save_every=None):
@@ -106,7 +96,7 @@ class GymEnvironment(BaseEnvironment):
             observation = self.env.reset()
             scores = np.zeros(self.num_agents)
             rewards = []
-            self.reset_agents()
+            self.reset_algorithm()
 
             t = 1
             while True:
@@ -150,7 +140,7 @@ class GymEnvironment(BaseEnvironment):
 
         for i in range(1, num_episodes+1):
             observation = self.env.reset()
-            scores = np.zeros(self.num_env_agents)
+            scores = np.zeros(self.num_agents)
 
             while True:
                 if render:

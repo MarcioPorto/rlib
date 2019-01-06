@@ -30,7 +30,7 @@ class VPGAgent(Agent):
                  seed=0,
                  device="cpu",
                  model_output_dir=None):
-        super(DDPGAgent, self).__init__(
+        super(VPGAgent, self).__init__(
             new_hyperparameters=new_hyperparameters
         )
 
