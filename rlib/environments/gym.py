@@ -96,7 +96,7 @@ class GymEnvironment(BaseEnvironment):
             observation = self.env.reset()
             scores = np.zeros(self.num_agents)
             rewards = []
-            self.reset_algorithm()
+            self.algorithm.reset()
 
             t = 1
             while True:
@@ -105,7 +105,7 @@ class GymEnvironment(BaseEnvironment):
 
                 action = self.act(observation, add_noise=add_noise)
                 next_observation, reward, done, _ = self.env.step(action)
-                self.step(observation, action, reward, next_observation, done)
+                self.algorithm.step(observation, action, reward, next_observation, done)
 
                 observation = next_observation
                 scores += reward
@@ -116,10 +116,11 @@ class GymEnvironment(BaseEnvironment):
                     break
 
             self.episode_scores.append(scores)
-            self.update(rewards)
+            self.algorithm.update(rewards)
 
             if save_every and i_episode % save_every == 0:
-                self.save_state_dicts()
+                # TODO: Only save if best weights
+                self.algorithm.save_state_dicts()
 
         self.close_env()
         return self.episode_scores
@@ -134,7 +135,7 @@ class GymEnvironment(BaseEnvironment):
         render (boolean): Render environment state
         """
         if load_state_dicts:
-            self.load_state_dicts()
+            self.algorithm.load_state_dicts()
 
         self.start_env()
 
