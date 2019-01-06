@@ -10,31 +10,6 @@ class BaseEnvironment:
         else:
             return action
 
-    def step(self, observation, action, reward, next_observation, done):
-        r"""Step helper for each agent.
-
-        By default, every agent receives the full description of the environment
-        available. It is up to each individual agent implementation to decide
-        what to do with that information.
-        """
-        self.algorithm.step(observation, action, reward, next_observation, done)
-
-    def update(self, rewards):
-        # TODO: Make sure this will work with something like DDPG
-        self.algorithm.update(rewards)
-
-    def reset_algorithm(self):
-        r"""Resets each individual agent."""
-        self.algorithm.reset()
-
-    def save_state_dicts(self):
-        r"""Wrapper to save state dicts for each individual agent."""
-        self.algorithm.save_state_dicts()
-
-    def load_state_dicts(self):
-        r"""Wrapper to load state dicts for each individual agent."""
-        self.algorithm.load_state_dicts()
-
     def plot_scores(self, scores=None, env_solved_score=None):
         r"""Plots scores for each episode.
 
