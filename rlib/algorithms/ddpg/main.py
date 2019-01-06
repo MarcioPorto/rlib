@@ -12,7 +12,7 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class DDPGAgent(Agent):
+class DDPG(Agent):
     """Interacts with and learns from the environment."""
 
     REQUIRED_HYPERPARAMETERS = {
@@ -48,7 +48,7 @@ class DDPGAgent(Agent):
             action_size (int): dimension of each action
             num_agents (int): number of agents in the environment
         """
-        super(DDPGAgent, self).__init__(
+        super(DDPG, self).__init__(
             new_hyperparameters=new_hyperparameters
         )
 

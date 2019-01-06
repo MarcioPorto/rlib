@@ -11,7 +11,7 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class DQNAgent(Agent):
+class DQN(Agent):
     """Interacts with and learns from the environment."""
 
     # TODO: Consider how to extend this to accept multiple agents?
@@ -57,7 +57,7 @@ class DQNAgent(Agent):
             opt_soft_update (bool): Use soft update instead of hard update
             opt_ddqn (bool): Use Double DQN for `expected_Q`
         """
-        super(DQNAgent, self).__init__(
+        super(DQN, self).__init__(
             new_hyperparameters=new_hyperparameters
         )
 
