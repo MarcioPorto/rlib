@@ -22,7 +22,9 @@ class DDPG(Agent):
         "tau": 1e-3,
         "learning_rate_actor": 1e-4,
         "learning_rate_critic": 1e-3,
-        "weight_decay": 1e-2
+        "weight_decay": 1e-2,
+        "learn_every": 4,
+        "hard_update_every": 5
     }
 
     def __init__(self,
@@ -57,6 +59,7 @@ class DDPG(Agent):
         self.num_agents = num_agents
         self.seed = random.seed(seed)
         self.device = device
+        self.time_step = 0
 
         # Actor Network (w/ Target Network)
         self.actor_local = actor_local if actor_local else Actor(state_size, action_size, seed).to(device)
@@ -105,7 +108,6 @@ class DDPG(Agent):
 
     def step(self, states, actions, rewards, next_states, dones):
         """Save experience in replay memory, and use random sample from buffer to learn."""
-        # Save experience / reward tuple for each agent to a shared replay buffer before sampling
         if self.num_agents == 1:
             self.memory.add(states, actions, rewards, next_states, dones)
         else:
@@ -113,10 +115,12 @@ class DDPG(Agent):
             for i in range(self.num_agents):
                 self.memory.add(states[i], actions[i], rewards[i], next_states[i], dones[i])
 
-        # Learn, if enough samples are available in memory
-        if len(self.memory) > self.BATCH_SIZE:
-            experiences = self.memory.sample()
-            self.learn(experiences)
+        # Learn every `learn_every` time steps
+        self.time_step += 1
+        if self.time_step % self.LEARN_EVERY == 0:
+            if len(self.memory) > self.BATCH_SIZE:
+                experiences = self.memory.sample()
+                self.learn(experiences)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -190,6 +194,6 @@ class DDPG(Agent):
         if self.opt_soft_update:
             soft_update(self.actor_local, self.actor_target, self.TAU)
             soft_update(self.critic_local, self.critic_target, self.TAU)
-        else:
+        elif self.time_step % self.HARD_UPDATE_EVERY == 0:
             hard_update(self.actor_local, self.actor_target)
             hard_update(self.critic_local, self.critic_target)
