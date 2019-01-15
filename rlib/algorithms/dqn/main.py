@@ -58,6 +58,9 @@ class DQN(Agent):
             seed (int): Random seed
             device (str): Identifier for device to be used by PyTorch
             model_output_dir (str): Directory where state dicts will be saved to
+            enable_logger (bool): Enable Tensorboard logger
+            logger_path (str): Location to store logs
+            logger_comment (str): Logs description
             opt_soft_update (bool): Use soft update instead of hard update
             opt_ddqn (bool): Use Double DQN for `expected_Q`
         """
