@@ -88,7 +88,6 @@ class GymEnvironment(BaseEnvironment):
         self.episode_scores = []
 
         for i_episode in range(1, num_episodes+1):
-            # TODO: Check progress bar
             current_average = self.get_current_average_score(scores_window_size)
             widget[12] = pb.FormatLabel(str(current_average)[:6])
             timer.update(i_episode)
@@ -121,6 +120,9 @@ class GymEnvironment(BaseEnvironment):
             if save_every and i_episode % save_every == 0:
                 # TODO: Only save if best weights
                 self.algorithm.save_state_dicts()
+
+                if self.algorithm.logger:
+                    self.algorithm.logger.add_scalar("data/avg_rewards", np.mean(rewards), i_episode)
 
         self.close_env()
         self.algorithm.tear_down()
