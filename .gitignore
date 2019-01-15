@@ -9,3 +9,6 @@ __pycache__/
 .envrc
 
 *.pyc
+
+# Helpers
+local/
