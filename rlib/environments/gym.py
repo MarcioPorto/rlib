@@ -123,6 +123,8 @@ class GymEnvironment(BaseEnvironment):
                 self.algorithm.save_state_dicts()
 
         self.close_env()
+        self.algorithm.tear_down()
+
         return self.episode_scores
 
     def test(self, num_episodes=5, load_state_dicts=False, render=True):

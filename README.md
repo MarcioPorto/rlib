@@ -21,6 +21,12 @@ env.train()
 env.test()
 ```
 
+If you chose to log events to Tensorboard, run:
+
+```
+tensorboard --logdir=<your_log_dir>
+```
+
 ## Testing
 
 To run all tests:
