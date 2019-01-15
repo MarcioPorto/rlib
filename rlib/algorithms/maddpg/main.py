@@ -39,6 +39,9 @@ class MADDPG(Agent):
                  seed=0,
                  device="cpu",
                  model_output_dir=None,
+                 enable_logger=False,
+                 logger_path=None,
+                 logger_comment=None,
                  opt_soft_update=False):
         """Initialize a MADDPGAgent wrapper.
         Params
@@ -48,7 +51,10 @@ class MADDPG(Agent):
             num_agents (int): the number of agents in the environment
         """
         super(DDPG, self).__init__(
-            new_hyperparameters=new_hyperparameters
+            new_hyperparameters=new_hyperparameters,
+            enable_logger=enable_logger,
+            logger_path=logger_path,
+            logger_comment=logger_comment
         )
 
         self.state_size = state_size
@@ -251,6 +257,16 @@ class DDPGAgent(Agent):
         elif self.time_step % self.handler.HARD_UPDATE_EVERY == 0:
             hard_update(self.actor_local, self.actor_target)
             hard_update(self.critic_local, self.critic_target)
+
+        if self.logger:
+            actor_loss = actor_loss.cpu().detach().item()
+            critic_loss = critic_loss.cpu().detach().item()
+            self.logger.add_scalars(
+                'data/loss', {
+                    "actor loss": actor_loss,
+                    "critic loss": critic_loss,
+                }, self.time_step
+            )
 
     def _decay_noise_amplification(self):
         """Helper for decaying exploration noise amplification."""

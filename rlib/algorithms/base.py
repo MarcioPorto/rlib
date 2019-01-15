@@ -13,17 +13,17 @@ class Agent:
             if isinstance(kwargs["new_hyperparameters"], dict):
                 self._set_hyperparameters(kwargs["new_hyperparameters"])
 
-        # Converts each hyperparameter into an attribute
-        # This minimizes the code written to use the hyperparameters
-        for key, value in self.REQUIRED_HYPERPARAMETERS.items():
-            setattr(self, key.upper(), value)
-
         if "enable_logger" in kwargs and kwargs["enable_logger"] == True:
             logger_path = kwargs["logger_path"] if "logger_path" in kwargs and kwargs["logger_path"] is not None else self.ALGORITHM
             logger_comment = kwargs["logger_comment"] if "logger_comment" in kwargs and kwargs["logger_comment"] is not None else ""
             self.logger = SummaryWriter(logger_path, logger_comment)
         else:
             self.logger = None
+
+        # Converts each hyperparameter into an attribute
+        # This minimizes the code written to use the hyperparameters
+        for key, value in self.REQUIRED_HYPERPARAMETERS.items():
+            setattr(self, key.upper(), value)
 
     def reset(self):
         if hasattr(self, "noise"):
@@ -61,7 +61,7 @@ class Agent:
     def save_state_dicts(self):
         r"""Save state dicts to file."""
         if not self.model_output_dir:
-            raise Exception("You must provide an output directory to save state dict.")
+            return
 
         for sd in self.state_dicts:
             torch.save(

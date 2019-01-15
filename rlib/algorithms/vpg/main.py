@@ -29,13 +29,20 @@ class VPG(Agent):
                  new_hyperparameters=None,
                  seed=0,
                  device="cpu",
-                 model_output_dir=None):
+                 model_output_dir=None,
+                 enable_logger=False,
+                 logger_path=None,
+                 logger_comment=None):
         super(VPG, self).__init__(
-            new_hyperparameters=new_hyperparameters
+            new_hyperparameters=new_hyperparameters,
+            enable_logger=enable_logger,
+            logger_path=logger_path,
+            logger_comment=logger_comment
         )
 
         # TODO: Single interface for seeding
         self.seed = random.seed(seed)
+        self.time_step = 0
 
         self.device = device
 
@@ -66,6 +73,9 @@ class VPG(Agent):
     def reset(self):
         self.saved_log_probs = []
 
+    def step(self, state, action, reward, next_state, done):
+        self.time_step += 1
+
     def act(self, state, add_noise=False):
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         probs = self.policy.forward(state).cpu()
@@ -90,3 +100,9 @@ class VPG(Agent):
         self.optimizer.zero_grad()
         policy_loss.backward()
         self.optimizer.step()
+
+        if self.logger:
+            policy_loss = policy_loss.cpu().detach().item()
+            self.logger.add_scalar(
+                'data/loss', policy_loss, self.time_step
+            )
