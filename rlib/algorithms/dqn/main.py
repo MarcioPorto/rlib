@@ -28,6 +28,7 @@ class DQN(Agent):
         "learn_every": 4,
         "hard_update_every": 5
     }
+    ALGORITHM = "DQN"
 
     def __init__(self,
                  state_size,
@@ -39,6 +40,9 @@ class DQN(Agent):
                  seed=0,
                  device="cpu",
                  model_output_dir=None,
+                 enable_logger=False,
+                 logger_path=None,
+                 logger_comment=None,
                  opt_soft_update=False,
                  opt_ddqn=False):
         r"""Initialize an Agent object.
@@ -58,7 +62,10 @@ class DQN(Agent):
             opt_ddqn (bool): Use Double DQN for `expected_Q`
         """
         super(DQN, self).__init__(
-            new_hyperparameters=new_hyperparameters
+            new_hyperparameters=new_hyperparameters,
+            enable_logger=enable_logger,
+            logger_path=logger_path,
+            logger_comment=logger_comment
         )
 
         self.state_size = state_size
@@ -178,3 +185,9 @@ class DQN(Agent):
             soft_update(self.qnetwork_local, self.qnetwork_target, self.TAU)
         elif self.time_step % self.HARD_UPDATE_EVERY == 0:
             hard_update(self.qnetwork_local, self.qnetwork_target)
+
+        if self.logger:
+            loss = loss.cpu().detach().item()
+            self.logger.add_scalar(
+                'data/loss', loss, self.time_step
+            )

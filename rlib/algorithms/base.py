@@ -1,30 +1,49 @@
 import os
 
 import torch
+from tensorboardX import SummaryWriter
 
 
 class Agent:
     REQUIRED_HYPERPARAMETERS = {}
+    ALGORITHM = None
 
     def __init__(self, *args, **kwargs):
         if "new_hyperparameters" in kwargs:
             if isinstance(kwargs["new_hyperparameters"], dict):
                 self._set_hyperparameters(kwargs["new_hyperparameters"])
 
+        # Converts each hyperparameter into an attribute
+        # This minimizes the code written to use the hyperparameters
         for key, value in self.REQUIRED_HYPERPARAMETERS.items():
             setattr(self, key.upper(), value)
+
+        if "enable_logger" in kwargs and kwargs["enable_logger"] == True:
+            logger_path = kwargs["logger_path"] if "logger_path" in kwargs and kwargs["logger_path"] is not None else self.ALGORITHM
+            logger_comment = kwargs["logger_comment"] if "logger_comment" in kwargs and kwargs["logger_comment"] is not None else ""
+            self.logger = SummaryWriter(logger_path, logger_comment)
+        else:
+            self.logger = None
 
     def reset(self):
         if hasattr(self, "noise"):
             self.noise.reset()
 
+    def tear_down(self):
+        """Called at the end of training loop to close the SummaryWriter"""
+        if self.logger:
+            self.logger.close()
+
     def act(self, state, add_noise=False):
+        """Default `act` implementation"""
         pass
 
     def step(self, state, action, reward, next_state, done):
+        """Default `step` implementation"""
         pass
 
     def update(self, rewards):
+        """Default `update` implementation"""
         pass
 
     def get_hyperparameters(self):
