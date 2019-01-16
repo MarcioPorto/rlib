@@ -1,3 +1,5 @@
+import os
+
 import gym
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,28 +11,21 @@ from rlib.environments.base import BaseEnvironment
 class GymEnvironment(BaseEnvironment):
     def __init__(self, env_name,
                  seed=0,
-                 enable_logger=False,
-                 logger_path=None,
-                 logger_comment=None,):
+                 logger=None,
+                 gifs_recorder=None):
         r"""Initializes an OpenAI Gym environment
 
         Params
         ======
         env_name (str): Name of an OpenAI Gym environment
         seed (int): Environment seed
-        enable_logger (bool): Enable Tensorboard logger
-        logger_path (str): Location to store logs
-        logger_comment (str): Logs description
+        logger (Logger): Tensorboard logger helper
+        gifs_recorder (GIFRecorder): GIF recorder helper
         """
-        super(GymEnvironment, self).__init__(
-            env_name=env_name,
-            enable_logger=enable_logger,
-            logger_path=logger_path,
-            logger_comment=logger_comment
-        )
-
         self._env_name = env_name
         self.seed = seed
+        self.logger = logger
+        self.gifs_recorder = gifs_recorder
 
         self.start_env()
 
@@ -106,21 +101,28 @@ class GymEnvironment(BaseEnvironment):
             widget[12] = pb.FormatLabel(str(current_average)[:6])
             timer.update(i_episode)
 
+            save_info = save_every and i_episode % save_every == 0
+
             observation = self.env.reset()
             scores = np.zeros(self.num_agents)
             rewards = []
             self.algorithm.reset()
+
+            frames = []
+
+            if save_info:
+                frames.append(self.env.render("rgb_array"))
 
             t = 1
             while True:
                 if max_t and t == max_t + 1:
                     break
 
-                action = self.act(observation, add_noise=add_noise)
+                action = self.act(observation, add_noise=add_noise, logger=self.logger.writer)
                 next_observation, reward, done, _ = self.env.step(action)
                 self.algorithm.step(
                     observation, action, reward, next_observation, done,
-                    logger=self.logger
+                    logger=self.logger.writer
                 )
 
                 observation = next_observation
@@ -128,18 +130,24 @@ class GymEnvironment(BaseEnvironment):
                 rewards.append(reward)
                 t += 1
 
+                if save_info:
+                    frames.append(self.env.render("rgb_array"))
+
                 if done:
                     break
 
             self.episode_scores.append(scores)
-            self.algorithm.update(rewards, logger=self.logger)
+            self.algorithm.update(rewards, logger=self.logger.writer)
 
-            if save_every and i_episode % save_every == 0:
-                # TODO: Only save if best weights
+            if save_info:
+                # TODO: Only save if best weights so far
                 self.algorithm.save_state_dicts()
 
                 if self.logger:
-                    self.logger.add_scalar("data/avg_rewards", np.mean(rewards), i_episode)
+                    self.logger.writer.add_scalar("data/avg_rewards", np.mean(rewards), i_episode)
+
+                if self.gifs_recorder:
+                    self.gifs_recorder.save_gif("episode-{}.gif".format(i_episode), frames)
 
         self.close_env()
         if self.logger:

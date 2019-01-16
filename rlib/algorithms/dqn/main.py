@@ -44,8 +44,7 @@ class DQN(Agent):
                  opt_ddqn=False):
         r"""Initialize an Agent object.
 
-        Params
-        ======
+        Args:
             state_size (int): Dimension of each state
             action_size (int): Dimension of each action
             qnetwork_local (torch.nn.Module): Local Q-Network model
@@ -126,8 +125,7 @@ class DQN(Agent):
     def act(self, state, eps=0.0, add_noise=False, logger=None):
         r"""Returns actions for given state as per current policy.
 
-        Params
-        ======
+        Args:
             state (numpy array): Current state
             eps (float): Epsilon, for Epsilon-greedy action selection
             add_noise (boolean): Add noise to the agent's actions?
@@ -147,8 +145,7 @@ class DQN(Agent):
     def learn(self, experiences, logger=None):
         r"""Updates value parameters using given batch of experience tuples.
 
-        Params
-        ======
+        Args:
             experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
         """
         states, actions, rewards, next_states, dones = experiences
