@@ -40,9 +40,6 @@ class DQN(Agent):
                  seed=0,
                  device="cpu",
                  model_output_dir=None,
-                 enable_logger=False,
-                 logger_path=None,
-                 logger_comment=None,
                  opt_soft_update=False,
                  opt_ddqn=False):
         r"""Initialize an Agent object.
@@ -58,17 +55,11 @@ class DQN(Agent):
             seed (int): Random seed
             device (str): Identifier for device to be used by PyTorch
             model_output_dir (str): Directory where state dicts will be saved to
-            enable_logger (bool): Enable Tensorboard logger
-            logger_path (str): Location to store logs
-            logger_comment (str): Logs description
             opt_soft_update (bool): Use soft update instead of hard update
             opt_ddqn (bool): Use Double DQN for `expected_Q`
         """
         super(DQN, self).__init__(
-            new_hyperparameters=new_hyperparameters,
-            enable_logger=enable_logger,
-            logger_path=logger_path,
-            logger_comment=logger_comment
+            new_hyperparameters=new_hyperparameters
         )
 
         self.state_size = state_size
@@ -121,7 +112,7 @@ class DQN(Agent):
             self.qnetwork_target
         ))
 
-    def step(self, state, action, reward, next_state, done):
+    def step(self, state, action, reward, next_state, done, logger=None):
         r"""Saves experience to replay memory and updates model weights"""
         self.memory.add(state, action, reward, next_state, done)
 
@@ -130,7 +121,7 @@ class DQN(Agent):
         if self.time_step % self.LEARN_EVERY == 0:
             if len(self.memory) > self.BATCH_SIZE:
                 experiences = self.memory.sample()
-                self.learn(experiences)
+                self.learn(experiences, logger=logger)
 
     def act(self, state, eps=0.0, add_noise=False):
         r"""Returns actions for given state as per current policy.
@@ -153,7 +144,7 @@ class DQN(Agent):
         else:
             return random.choice(np.arange(self.action_size))
 
-    def learn(self, experiences):
+    def learn(self, experiences, logger=None):
         r"""Updates value parameters using given batch of experience tuples.
 
         Params
@@ -189,8 +180,8 @@ class DQN(Agent):
         elif self.time_step % self.HARD_UPDATE_EVERY == 0:
             hard_update(self.qnetwork_local, self.qnetwork_target)
 
-        if self.logger:
+        if logger:
             loss = loss.cpu().detach().item()
-            self.logger.add_scalar(
+            logger.add_scalar(
                 'data/loss', loss, self.time_step
             )

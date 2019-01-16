@@ -1,7 +1,17 @@
 import numpy as np
+from tensorboardX import SummaryWriter
 
 
 class BaseEnvironment:
+    def __init__(self, *args, **kwargs):
+        if "enable_logger" in kwargs and kwargs["enable_logger"] == True:
+            env_name = kwargs["env_name"]
+            logger_path = kwargs["logger_path"] if "logger_path" in kwargs and kwargs["logger_path"] is not None else env_name
+            logger_comment = kwargs["logger_comment"] if "logger_comment" in kwargs and kwargs["logger_comment"] is not None else ""
+            self.logger = SummaryWriter(logger_path, logger_comment)
+        else:
+            self.logger = None
+
     def act(self, observations, add_noise=False):
         r"""Picks an action for each agent given their individual observations."""
         action = self.algorithm.act(observations, add_noise=add_noise)
