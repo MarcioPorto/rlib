@@ -12,7 +12,6 @@ class Logger:
             comment (str): Extra description of this experiment
         """
         # TODO: Add an option for experiment name?
-        # TODO: Decide whether we want to shadow methods from TX
 
         self.path = path
         self.comment = comment
@@ -20,6 +19,12 @@ class Logger:
 
     def close(self):
         self.writer.close()
+
+    def add_scalar(self, name, data, index):
+        self.writer.add_scalar("data/{}".format(name), data, index)
+
+    def add_scalars(self, name, data, index):
+        self.writer.add_scalars("data/{}".format(name), data, index)
 
 
 class GIFRecorder:

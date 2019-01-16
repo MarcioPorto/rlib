@@ -208,7 +208,7 @@ class DDPG(Agent):
             actor_loss = actor_loss.cpu().detach().item()
             critic_loss = critic_loss.cpu().detach().item()
             logger.add_scalars(
-                'data/loss', {
+                'loss', {
                     "actor loss": actor_loss,
                     "critic loss": critic_loss,
                 }, self.time_step
