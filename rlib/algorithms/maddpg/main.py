@@ -82,7 +82,7 @@ class MADDPG(Agent):
         for agent in self.agents:
             agent.reset()
 
-    def act(self, observations, add_noise=False):
+    def act(self, observations, add_noise=False, logger=None):
         """Picks an action for each agent given their individual observations
         and the current policy."""
         actions = []
@@ -91,7 +91,7 @@ class MADDPG(Agent):
             actions.append(action)
         return np.array(actions)
 
-    def step(self, observations, actions, rewards, next_observations, dones):
+    def step(self, observations, actions, rewards, next_observations, dones, logger=None):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         observations = observations.reshape(1, -1)
         actions = actions.reshape(1, -1)
@@ -105,9 +105,9 @@ class MADDPG(Agent):
             if len(self.memory) > self.BATCH_SIZE:
                 for a_i, agent in enumerate(self.agents):
                     experiences = self.memory.sample()
-                    self.learn(experiences, a_i)
+                    self.learn(experiences, a_i, logger=logger)
 
-    def learn(self, experiences, agent_number):
+    def learn(self, experiences, agent_number, logger=None):
         """Helper to pick actions from each agent for the `experiences` tuple that
         will be used to update the weights to agent with ID = `agent_number`.
         Each observation in the `experiences` tuple contains observations from each
@@ -135,7 +135,7 @@ class MADDPG(Agent):
         actions_pred = torch.cat(actions_pred, dim=1).to(device)
 
         agent = self.agents[agent_number]
-        agent.learn(experiences, next_actions, actions_pred)
+        agent.learn(experiences, next_actions, actions_pred, logger=logger)
 
     def _get_agent_number(self, i):
         """Helper to get an agent's number as a Torch tensor."""
@@ -203,7 +203,7 @@ class DDPGAgent(Agent):
         if self.agent_id != NUM_AGENTS:
             print("_______________________________________________________________")
 
-    def act(self, state, add_noise=False):
+    def act(self, state, add_noise=False, logger=None):
         """Returns actions for given state as per current policy."""
         state = torch.from_numpy(state).float().to(device)
 
@@ -218,7 +218,7 @@ class DDPGAgent(Agent):
 
         return np.clip(action, -1, 1)
 
-    def learn(self, experiences, next_actions, actions_pred):
+    def learn(self, experiences, next_actions, actions_pred, logger=None):
         """Update policy and value parameters using given batch of experience tuples.
         Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
         where:
@@ -258,10 +258,10 @@ class DDPGAgent(Agent):
             hard_update(self.actor_local, self.actor_target)
             hard_update(self.critic_local, self.critic_target)
 
-        if self.logger:
+        if logger:
             actor_loss = actor_loss.cpu().detach().item()
             critic_loss = critic_loss.cpu().detach().item()
-            self.logger.add_scalars(
+            logger.add_scalars(
                 'data/loss', {
                     "actor loss": actor_loss,
                     "critic loss": critic_loss,

@@ -132,7 +132,7 @@ class GymEnvironment(BaseEnvironment):
                     break
 
             self.episode_scores.append(scores)
-            self.algorithm.update(rewards)
+            self.algorithm.update(rewards, logger=self.logger)
 
             if save_every and i_episode % save_every == 0:
                 # TODO: Only save if best weights

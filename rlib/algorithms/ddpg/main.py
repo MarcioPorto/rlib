@@ -112,7 +112,7 @@ class DDPG(Agent):
             self.critic_target
         ))
 
-    def step(self, states, actions, rewards, next_states, dones):
+    def step(self, states, actions, rewards, next_states, dones, logger=None):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         if self.num_agents == 1:
             self.memory.add(states, actions, rewards, next_states, dones)
@@ -126,9 +126,9 @@ class DDPG(Agent):
         if self.time_step % self.LEARN_EVERY == 0:
             if len(self.memory) > self.BATCH_SIZE:
                 experiences = self.memory.sample()
-                self.learn(experiences)
+                self.learn(experiences, logger=logger)
 
-    def act(self, state, add_noise=True):
+    def act(self, state, add_noise=True, logger=None):
         """Returns actions for given state as per current policy."""
         state = torch.from_numpy(state).float().to(self.device)
 
@@ -160,7 +160,7 @@ class DDPG(Agent):
             # return np.clip(action, -1, 1)
             return actions
 
-    def learn(self, experiences):
+    def learn(self, experiences, logger=None):
         """Update policy and value parameters using given batch of experience tuples.
         Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
         where:
@@ -204,10 +204,10 @@ class DDPG(Agent):
             hard_update(self.actor_local, self.actor_target)
             hard_update(self.critic_local, self.critic_target)
 
-        if self.logger:
+        if logger:
             actor_loss = actor_loss.cpu().detach().item()
             critic_loss = critic_loss.cpu().detach().item()
-            self.logger.add_scalars(
+            logger.add_scalars(
                 'data/loss', {
                     "actor loss": actor_loss,
                     "critic loss": critic_loss,
