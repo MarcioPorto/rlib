@@ -7,14 +7,28 @@ from rlib.environments.base import BaseEnvironment
 
 
 class GymEnvironment(BaseEnvironment):
-    def __init__(self, env_name, seed=0):
+    def __init__(self, env_name,
+                 seed=0,
+                 enable_logger=False,
+                 logger_path=None,
+                 logger_comment=None,):
         r"""Initializes an OpenAI Gym environment
 
         Params
         ======
         env_name (str): Name of an OpenAI Gym environment
         seed (int): Environment seed
+        enable_logger (bool): Enable Tensorboard logger
+        logger_path (str): Location to store logs
+        logger_comment (str): Logs description
         """
+        super(GymEnvironment, self).__init__(
+            env_name=env_name,
+            enable_logger=enable_logger,
+            logger_path=logger_path,
+            logger_comment=logger_comment
+        )
+
         self._env_name = env_name
         self.seed = seed
 
@@ -104,7 +118,10 @@ class GymEnvironment(BaseEnvironment):
 
                 action = self.act(observation, add_noise=add_noise)
                 next_observation, reward, done, _ = self.env.step(action)
-                self.algorithm.step(observation, action, reward, next_observation, done)
+                self.algorithm.step(
+                    observation, action, reward, next_observation, done,
+                    logger=self.logger
+                )
 
                 observation = next_observation
                 scores += reward
@@ -121,11 +138,12 @@ class GymEnvironment(BaseEnvironment):
                 # TODO: Only save if best weights
                 self.algorithm.save_state_dicts()
 
-                if self.algorithm.logger:
-                    self.algorithm.logger.add_scalar("data/avg_rewards", np.mean(rewards), i_episode)
+                if self.logger:
+                    self.logger.add_scalar("data/avg_rewards", np.mean(rewards), i_episode)
 
         self.close_env()
-        self.algorithm.tear_down()
+        if self.logger:
+            self.logger.close()
 
         return self.episode_scores
 
