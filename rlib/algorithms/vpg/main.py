@@ -104,5 +104,5 @@ class VPG(Agent):
         if logger:
             policy_loss = policy_loss.cpu().detach().item()
             logger.add_scalar(
-                'data/loss', policy_loss, self.time_step
+                'loss', policy_loss, self.time_step
             )

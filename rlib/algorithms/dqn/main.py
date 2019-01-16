@@ -180,5 +180,5 @@ class DQN(Agent):
         if logger:
             loss = loss.cpu().detach().item()
             logger.add_scalar(
-                'data/loss', loss, self.time_step
+                'loss', loss, self.time_step
             )
