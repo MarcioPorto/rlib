@@ -73,10 +73,10 @@ class VPG(Agent):
     def reset(self):
         self.saved_log_probs = []
 
-    def step(self, state, action, reward, next_state, done):
+    def step(self, state, action, reward, next_state, done, logger=None):
         self.time_step += 1
 
-    def act(self, state, add_noise=False):
+    def act(self, state, add_noise=False, logger=None):
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         probs = self.policy.forward(state).cpu()
         m = Categorical(probs)
@@ -85,7 +85,7 @@ class VPG(Agent):
         self.saved_log_probs.append(log_prob)
         return action.item()
 
-    def update(self, rewards):
+    def update(self, rewards, logger=None):
         discounts = [
             self.GAMMA**i
             for i in range(len(rewards)+1)
@@ -101,8 +101,8 @@ class VPG(Agent):
         policy_loss.backward()
         self.optimizer.step()
 
-        if self.logger:
+        if logger:
             policy_loss = policy_loss.cpu().detach().item()
-            self.logger.add_scalar(
+            logger.add_scalar(
                 'data/loss', policy_loss, self.time_step
             )

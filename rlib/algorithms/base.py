@@ -21,7 +21,7 @@ class Agent:
         if hasattr(self, "noise"):
             self.noise.reset()
 
-    def act(self, state, add_noise=False):
+    def act(self, state, add_noise=False, logger=None):
         """Default `act` implementation"""
         pass
 

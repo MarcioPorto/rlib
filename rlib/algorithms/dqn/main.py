@@ -123,7 +123,7 @@ class DQN(Agent):
                 experiences = self.memory.sample()
                 self.learn(experiences, logger=logger)
 
-    def act(self, state, eps=0.0, add_noise=False):
+    def act(self, state, eps=0.0, add_noise=False, logger=None):
         r"""Returns actions for given state as per current policy.
 
         Params
