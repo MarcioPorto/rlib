@@ -4,7 +4,18 @@
 
 ## Installation
 
-Coming soon.
+```
+virtualenv -p python3 venv
+cd rlib/
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+To make sure your installation worked, run one of the algorithms in the test folder:
+
+```
+python test/algorithms/dqn_test.py
+```
 
 ## Usage
 
@@ -15,7 +26,7 @@ from rlib.algorithms.dqn import DQN
 from rlib.environments.gym import GymEnvironment
 
 env = GymEnvironment("CartPole-v0")
-dqn = DQN(env.observation_size, env.action_size, seed=seed)
+dqn = DQN(env.observation_size, env.action_size)
 env.set_algorithm(dqn)
 env.train()
 env.test()
