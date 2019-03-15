@@ -7,10 +7,13 @@ class BaseEnvironment:
         r"""Picks an action for each agent given their individual observations."""
         action = self.algorithm.act(observations, add_noise=add_noise, logger=logger)
 
-        if self.action_type == list and not isinstance(action, np.ndarray):
-            return np.array([action])
-        else:
-            return action
+        # TODO: Fix this
+        return action
+
+        # if self.action_type == list and not isinstance(action, np.ndarray):
+        #     return np.array([action])
+        # else:
+        #     return action
 
     def plot_scores(self, scores=None, env_solved_score=None):
         r"""Plots scores for each episode.
