@@ -38,11 +38,11 @@ class Agent:
         pass
 
     def get_hyperparameters(self):
-        r"""Returns the current state of the required hyperparameters"""
+        """Returns the current state of the required hyperparameters"""
         return self.REQUIRED_HYPERPARAMETERS
 
     def _set_hyperparameters(self, new_hyperparameters):
-        r"""Adds user defined hyperparameter values to the list required
+        """Adds user defined hyperparameter values to the list required
         hyperparameters.
         """
         for key, value in new_hyperparameters.items():
@@ -50,7 +50,7 @@ class Agent:
                 self.REQUIRED_HYPERPARAMETERS[key] = value
 
     def save_state_dicts(self):
-        r"""Save state dicts to file."""
+        """Save state dicts to file."""
         if not self.model_output_dir:
             return
 
@@ -61,7 +61,7 @@ class Agent:
             )
 
     def load_state_dicts(self):
-        r"""Load state dicts from file."""
+        """Load state dicts from file."""
         if not self.model_output_dir:
             raise Exception("You must provide an input directory to load state dict.")
 
