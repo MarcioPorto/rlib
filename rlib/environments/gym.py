@@ -6,13 +6,15 @@ import numpy as np
 import progressbar as pb
 
 from rlib.environments.base import BaseEnvironment
+from rlib.shared.utils import Logger, GIFRecorder
 
 
 class GymEnvironment(BaseEnvironment):
-    def __init__(self, env_name,
-                 seed=0,
-                 logger=None,
-                 gifs_recorder=None):
+    def __init__(self, 
+                 env_name: str,
+                 seed: int = 0,
+                 logger: Logger = None,
+                 gifs_recorder: GIFRecorder = None) -> None:
         r"""Initializes an OpenAI Gym environment
 
         Params

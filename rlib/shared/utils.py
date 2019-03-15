@@ -5,71 +5,77 @@ from tensorboardX import SummaryWriter
 
 
 class Logger:
-    def __init__(self, path, experiment_name, comment=None):
-        """
+    # TODO: Consider better names for these
+    # TODO: Consider usage of these
+    VERBOSITY = ['DEBUG', 'INFO']
+
+    def __init__(self, path: str, comment: str = None, verbosity: str = 'DEBUG', 
+                 experiment_name: str = None) -> None:
+        """ Initializes a Logger for training statistics.
+
         Args:
             path (str): Location where events will be stored
-            experiment_name (str): Name of the experiment run by this logger
             comment (str): Extra description of this experiment
         """
-        # TODO: Add an option for experiment name?
+        self.path = path
+        self.full_path = os.path.join(
+            self.path, 'logs'
+        )
+        os.makedirs(self.full_path, exist_ok=True)
 
-        # TODO: Improve argument checking here
-        self.path = path if not path.endswith("/") else path[:-1]
-        self.experiment_name = experiment_name
-        self.full_path = "{}/{}".format(self.path, self.experiment_name)
         self.comment = comment
-        self.writer = SummaryWriter(self.full_path, self.comment)
-
-    # TODO: Rename
-    def new_experiment_name(self, experiment_name):
-        self.close()
+        self.verbosity = verbosity
         self.experiment_name = experiment_name
-        self.full_path = "{}/{}".format(self.path, self.experiment_name)
+
         self.writer = SummaryWriter(self.full_path, self.comment)
 
-    def close(self):
+    def close(self) -> None:
+        """ Closes SummaryWriter. """
         self.writer.close()
 
-    def add_scalar(self, name, data, index):
+    def add_scalar(self, name: str, data, index: int) -> None:
         self.writer.add_scalar("data/{}".format(name), data, index)
 
-    def add_scalars(self, name, data, index):
+    def add_scalars(self, name: str, data, index: int) -> None:
         self.writer.add_scalars("data/{}".format(name), data, index)
 
     def add_video(self):
-        # TODO: FIX
-        # frames_vector = torch.from_numpy(np.array(frames))
-        # self.logger.add_video("video/episode-{}".format(i_episode), frames_vector)
-        pass
+        raise NotImplementedError()
 
 
 class GIFRecorder:
-    # TODO: Find a better name
-    """Helper to record GIFs of the environment during training."""
+    """ Helper to record GIFs of the agent during training. """
 
-    def __init__(self, path, duration=0.4):
+    def __init__(self, path: str, duration: float = 0.5, 
+                 experiment_name: str = None) -> None:
         """
         Args:
             path (str): Location where to store GIFs
             duration (float): Duration of GIFs
         """
-        # TODO: Add an option for experiment name?
-
         self.path = path
-        self.duration = duration
-        os.makedirs(self.path, exist_ok=True)
+        self.full_path = os.path.join(
+            self.path, 'gifs'
+        )
+        os.makedirs(self.full_path, exist_ok=True)
 
-    def save_gif(self, filename, frames):
+        self.duration = duration
+        self.experiment_name = experiment_name
+
+    def save_gif(self, filename: str, frames) -> None:
         """
         Args:
             filename (str): Name of file where GIF will be saved
             frames (list): Environment frames
         """
-        imageio.mimsave(os.path.join(self.path, filename), frames, duration=self.duration)
+        imageio.mimsave(
+            os.path.join(self.full_path, filename), 
+            frames, 
+            duration=self.duration
+        )
 
 
-def hard_update(local_model, target_model):
+def hard_update(local_model, target_model) -> None:
     r"""Hard updates model parameters.
 
     θ_target = θ_local
@@ -82,7 +88,7 @@ def hard_update(local_model, target_model):
         target_param.data.copy_(local_param.data)
 
 
-def soft_update(local_model, target_model, tau):
+def soft_update(local_model, target_model, tau) -> None:
     r"""Soft updates model parameters.
 
     θ_target = τ * θ_local + (1 - τ) * θ_target
