@@ -5,6 +5,7 @@ __pycache__/
 .vscode/
 
 # Environments
+venv/
 .env
 .envrc
 
