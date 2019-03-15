@@ -37,30 +37,24 @@ class VectorizedEnv(ABC):
 
     @abstractmethod
     def reset(self):
-        """
-        Reset all the environments and return an array of
-        observations, or a dict of observation arrays.
-        If step_async is still doing work, that work will
-        be cancelled and step_wait() should not be called
-        until step_async() is invoked again.
+        """ Reset all the environments and return an array of observations, or 
+        a dict of observation arrays. If step_async is still doing work, that 
+        work will be cancelled and step_wait() should not be called until 
+        step_async() is invoked again.
         """
         pass
 
     @abstractmethod
     def step_async(self, actions):
-        """
-        Tell all the environments to start taking a step
-        with the given actions.
-        Call step_wait() to get the results of the step.
-        You should not call this if a step_async run is
-        already pending.
+        """ Tell all the environments to start taking a step with the given 
+        actions. Call step_wait() to get the results of the step. You should 
+        not call this if a step_async run is already pending.
         """
         pass
 
     @abstractmethod
     def step_wait(self):
-        """
-        Wait for the step taken with step_async().
+        """ Wait for the step taken with step_async().
         Returns (obs, rews, dones, infos):
          - obs: an array of observations, or a dict of
                 arrays of observations.
@@ -72,14 +66,11 @@ class VectorizedEnv(ABC):
 
     @abstractmethod
     def close(self):
-        """
-        Clean up the environments' resources.
-        """
+        """ Clean up the environments' resources. """
         pass
 
     def step(self, actions):
-        """
-        Step the environments synchronously.
+        """ Step the environments synchronously.
         This is available for backwards compatibility.
         """
         self.step_async(actions)

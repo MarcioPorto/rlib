@@ -42,7 +42,7 @@ class DQN(Agent):
                  model_output_dir=None,
                  opt_soft_update=False,
                  opt_ddqn=False):
-        r"""Initialize an Agent object.
+        """Initialize an Agent object.
 
         Args:
             state_size (int): Dimension of each state
@@ -103,7 +103,7 @@ class DQN(Agent):
         hard_update(self.qnetwork_local, self.qnetwork_target)
 
     def __str__(self):
-        r"""Helper to output network architecture for the agent."""
+        """Helper to output network architecture for the agent."""
         return ("{}\n{}\n{}\n{}".format(
             "Q-Network (Local):",
             self.qnetwork_local,
@@ -112,7 +112,7 @@ class DQN(Agent):
         ))
 
     def step(self, state, action, reward, next_state, done, logger=None):
-        r"""Saves experience to replay memory and updates model weights"""
+        """Saves experience to replay memory and updates model weights"""
         self.memory.add(state, action, reward, next_state, done)
 
         # Learn every `learn_every` time steps
@@ -123,7 +123,7 @@ class DQN(Agent):
                 self.learn(experiences, logger=logger)
 
     def act(self, state, eps=0.0, add_noise=False, logger=None):
-        r"""Returns actions for given state as per current policy.
+        """Returns actions for given state as per current policy.
 
         Args:
             state (numpy array): Current state
@@ -143,7 +143,7 @@ class DQN(Agent):
             return random.choice(np.arange(self.action_size))
 
     def learn(self, experiences, logger=None):
-        r"""Updates value parameters using given batch of experience tuples.
+        """Updates value parameters using given batch of experience tuples.
 
         Args:
             experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
