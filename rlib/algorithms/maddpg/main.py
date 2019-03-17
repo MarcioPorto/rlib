@@ -50,6 +50,8 @@ class MADDPG(Agent):
             action_size (int): dimension of each action
             num_agents (int): the number of agents in the environment
         """
+        raise NotImplementedError()
+
         super(DDPG, self).__init__(
             new_hyperparameters=new_hyperparameters,
             enable_logger=enable_logger,

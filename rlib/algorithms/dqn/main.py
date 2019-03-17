@@ -20,14 +20,15 @@ class DQN(Agent):
     # TODO: Ensure that this cannot be changed in other ways
     # TODO: Look up original value for these params
     REQUIRED_HYPERPARAMETERS = {
-        "buffer_size": int(2e5),
-        "batch_size": 64,
-        "gamma": 0.95,
-        "learning_rate": 5e-4,
+        "buffer_size": int(1e7),
+        "batch_size": 32,
+        "gamma": 0.99,
+        "learning_rate": 2.5e-4,
         "tau": 1e-3,
         "learn_every": 4,
-        "hard_update_every": 5
+        "hard_update_every": 10000
     }
+    
     ALGORITHM = "DQN"
 
     def __init__(self,
@@ -42,7 +43,7 @@ class DQN(Agent):
                  model_output_dir=None,
                  opt_soft_update=False,
                  opt_ddqn=False):
-        r"""Initialize an Agent object.
+        """Initialize an Agent object.
 
         Args:
             state_size (int): Dimension of each state
@@ -103,7 +104,7 @@ class DQN(Agent):
         hard_update(self.qnetwork_local, self.qnetwork_target)
 
     def __str__(self):
-        r"""Helper to output network architecture for the agent."""
+        """Helper to output network architecture for the agent."""
         return ("{}\n{}\n{}\n{}".format(
             "Q-Network (Local):",
             self.qnetwork_local,
@@ -111,8 +112,21 @@ class DQN(Agent):
             self.qnetwork_target
         ))
 
+    def origin(self):
+        print('https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf')
+    
+    def description(self):
+        description = (
+            'DQN is an algorithm created by DeepMind that brings together the power '
+            'of the Q-Learning algorithm with the advantages of generalization through '
+            'function approximation. It uses a deep neural network to estimate a Q-value '
+            'function. As such, the input to the network is the current state of the '
+            'environment, and the output is the Q-value for each possible action.'
+        )
+        print(description)
+
     def step(self, state, action, reward, next_state, done, logger=None):
-        r"""Saves experience to replay memory and updates model weights"""
+        """Saves experience to replay memory and updates model weights"""
         self.memory.add(state, action, reward, next_state, done)
 
         # Learn every `learn_every` time steps
@@ -123,7 +137,7 @@ class DQN(Agent):
                 self.learn(experiences, logger=logger)
 
     def act(self, state, eps=0.0, add_noise=False, logger=None):
-        r"""Returns actions for given state as per current policy.
+        """Returns actions for given state as per current policy.
 
         Args:
             state (numpy array): Current state
@@ -143,7 +157,7 @@ class DQN(Agent):
             return random.choice(np.arange(self.action_size))
 
     def learn(self, experiences, logger=None):
-        r"""Updates value parameters using given batch of experience tuples.
+        """Updates value parameters using given batch of experience tuples.
 
         Args:
             experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
@@ -163,6 +177,8 @@ class DQN(Agent):
             target_Q = rewards + (self.GAMMA * next_max_a * (1 - dones))
 
         expected_Q = self.qnetwork_local(states)
+        if len(actions.shape) == 1:
+            actions = actions.unsqueeze(1)
         expected_Q = torch.gather(expected_Q, 1, actions.long())
 
         # Compute and minimize the loss

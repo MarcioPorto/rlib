@@ -5,9 +5,14 @@ from rlib.environments.gym import GymEnvironment
 
 
 def main(seed=0):
-    env = GymEnvironment("Pendulum-v0")
-    ddpg = DDPG(env.observation_size, env.action_size, num_agents=1, seed=seed)
-    env.set_algorithm(ddpg)
+    e = gym.make('Pendulum-v0')
+    e.seed(seed)
+
+    observation_size = 3
+    action_size = 1
+
+    ddpg = DDPG(observation_size, action_size, num_agents=1, seed=seed)
+    env = GymEnvironment(e, ddpg)
     env.train()
     env.test()
 

@@ -70,6 +70,18 @@ class VPG(Agent):
         self.saved_log_probs = []
         self.model_output_dir = model_output_dir
 
+    def origin(self):
+        print('https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf')
+    
+    def description(self):
+        description = (
+            'The key idea underlying policy gradients is to push up the '
+            'probabilities of actions that lead to higher return, and '
+            'push down the probabilities of actions that lead to lower '
+            'return, until you arrive at the optimal policy.'
+        )
+        print(description)
+
     def reset(self):
         self.saved_log_probs = []
 

@@ -4,6 +4,7 @@ import gym
 import matplotlib.pyplot as plt
 import numpy as np
 import progressbar as pb
+from typing import List
 
 from rlib.environments.base import BaseEnvironment
 from rlib.shared.utils import Logger, GIFRecorder
@@ -11,7 +12,8 @@ from rlib.shared.utils import Logger, GIFRecorder
 
 class GymEnvironment(BaseEnvironment):
     def __init__(self, 
-                 env_name: str,
+                 env,
+                 algorithm,
                  seed: int = 0,
                  logger: Logger = None,
                  gifs_recorder: GIFRecorder = None) -> None:
@@ -19,40 +21,22 @@ class GymEnvironment(BaseEnvironment):
 
         Params
         ======
-        env_name (str): Name of an OpenAI Gym environment
         seed (int): Environment seed
         logger (Logger): Tensorboard logger helper
         gifs_recorder (GIFRecorder): GIF recorder helper
         """
-        self._env_name = env_name
+        self.env = env
+        self._env_name = self.env.unwrapped.spec.id
+        self.algorithm = algorithm
         self.seed = seed
         self.logger = logger
         self.gifs_recorder = gifs_recorder
 
-        self.start_env()
+        # TODO: Get this dynamically once we have capability
+        self.num_agents = 1
 
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
-
-        self.num_agents = 1  # TODO: Get this dynamically once we have capability
-        self.observation_type = None
-        self.observation_size = None
-        if isinstance(self.observation_space, gym.spaces.box.Box):
-            self.num_agents = 1 if len(self.observation_space.shape) == 1 else self.observation_space.shape[0]
-            self.observation_size = self.observation_space.shape[0]
-            self.observation_type = list
-        elif isinstance(self.observation_space, gym.spaces.discrete.Discrete):
-            self.observation_size = self.observation_space.n
-            self.observation_type = int
-
-        self.action_type = None
-        self.action_size = None
-        if isinstance(self.action_space, gym.spaces.box.Box):
-            self.action_size = self.action_space.shape[0]
-            self.action_type = list
-        elif isinstance(self.action_space, gym.spaces.discrete.Discrete):
-            self.action_size = self.action_space.n
-            self.action_type = int
 
         self.episode_scores = []
 
@@ -73,12 +57,27 @@ class GymEnvironment(BaseEnvironment):
         r"""Helper to close an environment"""
         self.env.close()
 
-    def set_algorithm(self, algorithm):
-        self.algorithm = algorithm
+    def is_observation_box(self):
+        return isinstance(self.observation_space, gym.spaces.box.Box)
 
-    def train(self, num_episodes=100, max_t=None, add_noise=True, scores_window_size=100,
-              save_every=None):
-        r"""Trains agent(s) through interaction with this environment.
+    def is_observation_discrete(self):
+        return isinstance(self.observation_space, gym.spaces.discrete.Discrete)
+
+    def is_action_box(self):
+        return isinstance(self.action_space, gym.spaces.box.Box)
+
+    def is_action_discrete(self):
+        return isinstance(self.action_space, gym.spaces.discrete.Discrete)
+
+    def normalize_observation(self, obs):
+        """ Normalizes the observation received from the environment. 
+        Users must override this function if any transformation is needed. 
+        """
+        return obs
+
+    def train(self, num_episodes: int = 100, max_t: int = None, add_noise: bool = True, 
+              scores_window_size: int = 100, save_every: int = None) -> List[float]:
+        """Trains agent(s) through interaction with this environment.
 
         Params
         ======
@@ -98,7 +97,7 @@ class GymEnvironment(BaseEnvironment):
         self.start_env()
         self.episode_scores = []
 
-        for i_episode in range(1, num_episodes+1):
+        for i_episode in range(1, num_episodes + 1):
             current_average = self.get_current_average_score(scores_window_size)
             widget[12] = pb.FormatLabel(str(current_average)[:6])
             timer.update(i_episode)
@@ -106,6 +105,7 @@ class GymEnvironment(BaseEnvironment):
             save_info = save_every and i_episode % save_every == 0
 
             observation = self.env.reset()
+            observation = self.normalize_observation(observation)
             scores = np.zeros(self.num_agents)
             rewards = []
             self.algorithm.reset()
@@ -122,6 +122,8 @@ class GymEnvironment(BaseEnvironment):
 
                 action = self.act(observation, add_noise=add_noise, logger=self.logger)
                 next_observation, reward, done, _ = self.env.step(action)
+                next_observation = self.normalize_observation(next_observation)
+
                 self.algorithm.step(
                     observation, action, reward, next_observation, done,
                     logger=self.logger
@@ -152,13 +154,15 @@ class GymEnvironment(BaseEnvironment):
                     self.gifs_recorder.save_gif("episode-{}.gif".format(i_episode), frames)
 
         self.close_env()
+        
         if self.logger:
             self.logger.close()
 
         return self.episode_scores
 
-    def test(self, num_episodes=5, load_state_dicts=False, render=True):
-        r"""Runs trained agent(s) in this environment.
+    def test(self, num_episodes: int = 5, load_state_dicts: bool = False, 
+             render: bool = True) -> None:
+        """Runs trained agent(s) in this environment.
 
         Params
         ======
