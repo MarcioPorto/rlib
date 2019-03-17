@@ -24,7 +24,7 @@ class DDPG(Agent):
         "learning_rate_critic": 1e-3,
         "weight_decay": 1e-2,
         "learn_every": 4,
-        "hard_update_every": 5
+        "hard_update_every": 4
     }
 
     def __init__(self,
@@ -111,6 +111,19 @@ class DDPG(Agent):
             "Critic (Target):",
             self.critic_target
         ))
+
+    def origin(self):
+        print('https://arxiv.org/pdf/1509.02971.pdf')
+    
+    def description(self):
+        description = (
+            'DDPG was introduced as an actor-critic method that performs well '
+            'in environments with a continuous action space, which is a known '
+            'limitation of the popular DQN algorithm. It improves on the '
+            'deterministic policy gradient (DPG) algorithm by using a neural '
+            'network to take advantage of generalization and function approximation.'
+        )
+        print(description)
 
     def step(self, states, actions, rewards, next_states, dones, logger=None):
         """Save experience in replay memory, and use random sample from buffer to learn."""

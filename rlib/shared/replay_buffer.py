@@ -6,10 +6,10 @@ import torch
 
 
 class ReplayBuffer:
-    r"""Fixed-size buffer to store experience tuples."""
+    """ Fixed-size buffer to store experience tuples. """
 
     def __init__(self, buffer_size, batch_size, device, seed=0):
-        r"""Initializes a ReplayBuffer object.
+        """ Initializes a ReplayBuffer object.
 
         Params
         ======
@@ -25,22 +25,38 @@ class ReplayBuffer:
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
 
     def add(self, state, action, reward, next_state, done):
-        r"""Adds a new experience to memory."""
+        """ Adds a new experience to memory. """
         e = self.experience(state, action, reward, next_state, done)
         self.memory.append(e)
 
     def sample(self):
-        r"""Randomly samples a batch of experiences from memory."""
+        """ Randomly samples a batch of experiences from memory. """
         experiences = random.sample(self.memory, k=self.batch_size)
 
-        states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(self.device)
-        actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).float().to(self.device)
-        rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(self.device)
-        next_states = torch.from_numpy(np.vstack([e.next_state for e in experiences if e is not None])).float().to(self.device)
-        dones = torch.from_numpy(np.vstack([e.done for e in experiences if e is not None]).astype(np.uint8)).float().to(self.device)
+        st = [e.state for e in experiences if e is not None]
+
+        try:
+            assert len(st[0].shape) > 1
+            state = np.asarray(st)
+            action = np.asarray([e.action for e in experiences if e is not None])
+            reward = np.asarray([e.reward for e in experiences if e is not None])
+            next_state = np.asarray([e.next_state for e in experiences if e is not None])
+            done = np.asarray([e.done for e in experiences if e is not None])
+        except (AttributeError, AssertionError):
+            state = np.vstack(st)
+            action = np.vstack([e.action for e in experiences if e is not None])
+            reward = np.vstack([e.reward for e in experiences if e is not None])
+            next_state = np.vstack([e.next_state for e in experiences if e is not None])
+            done = np.vstack([e.done for e in experiences if e is not None])
+
+        states = torch.from_numpy(state).float().to(self.device)
+        actions = torch.from_numpy(action).float().to(self.device)
+        rewards = torch.from_numpy(reward).float().to(self.device)
+        next_states = torch.from_numpy(next_state).float().to(self.device)
+        dones = torch.from_numpy(done.astype(np.uint8)).float().to(self.device)
 
         return states, actions, rewards, next_states, dones
 
     def __len__(self):
-        r"""Returns the current size of the memory deque."""
+        """ Returns the current size of the memory deque. """
         return len(self.memory)
