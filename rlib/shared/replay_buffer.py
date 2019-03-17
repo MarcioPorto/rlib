@@ -35,13 +35,14 @@ class ReplayBuffer:
 
         st = [e.state for e in experiences if e is not None]
 
-        if len(st[0].shape) > 1:
+        try:
+            assert len(st[0].shape) > 1
             state = np.asarray(st)
             action = np.asarray([e.action for e in experiences if e is not None])
             reward = np.asarray([e.reward for e in experiences if e is not None])
             next_state = np.asarray([e.next_state for e in experiences if e is not None])
             done = np.asarray([e.done for e in experiences if e is not None])
-        else:
+        except (AttributeError, AssertionError):
             state = np.vstack(st)
             action = np.vstack([e.action for e in experiences if e is not None])
             reward = np.vstack([e.reward for e in experiences if e is not None])

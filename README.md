@@ -100,7 +100,7 @@ dqn = DQN(
 To run all tests:
 
 ```
-python -m unittest
+python -m unittest discover test/
 ```
 
 ## Contributing
