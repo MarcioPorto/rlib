@@ -5,16 +5,7 @@
 ## Installation
 
 ```
-virtualenv -p python3 venv
-cd rlib/
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-To make sure your installation worked, run one of the algorithms in the test folder:
-
-```
-python test/algorithms/dqn_test.py
+pip install rlib
 ```
 
 ## Usage
@@ -105,8 +96,24 @@ python -m unittest discover test/
 
 ## Contributing
 
+### Installation
+
 Feel free to open issues with any bugs found or any feature requests. Pull requests are always welcome for new functionality.
+
+```
+virtualenv -p python3 venv
+cd rlib/
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+To make sure your installation worked, run one of the algorithms in the test folder:
+
+```
+python test/algorithms/dqn_test.py
+```
 
 ## License
 
 `rlib` is released under the [MIT License](https://github.com/MarcioPorto/rlib/blob/master/LICENSE.md).
+
