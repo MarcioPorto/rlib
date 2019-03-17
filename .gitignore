@@ -1,5 +1,6 @@
 # Base
 .DS_Store
+dist/
 __pycache__/
 .ipynb_checkpoints/
 .vscode/
