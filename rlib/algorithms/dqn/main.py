@@ -177,6 +177,8 @@ class DQN(Agent):
             target_Q = rewards + (self.GAMMA * next_max_a * (1 - dones))
 
         expected_Q = self.qnetwork_local(states)
+        if len(actions.shape) == 1:
+            actions = actions.unsqueeze(1)
         expected_Q = torch.gather(expected_Q, 1, actions.long())
 
         # Compute and minimize the loss
