@@ -94,6 +94,8 @@ class ParallelEnv(VectorizedEnv):
         envs: list of gym environments to run in subprocesses
         adopted from openai baseline
         """
+        raise NotImplementedError()
+
         env_fns = [ gym.make(env_name) for _ in range(n) ]
 
         if seed is not None:
