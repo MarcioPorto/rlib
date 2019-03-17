@@ -36,6 +36,8 @@ class PPO(Agent):
                  enable_logger=False,
                  logger_path=None,
                  logger_comment=None):
+        raise NotImplementedError()
+
         super(PPO, self).__init__(
             new_hyperparameters=new_hyperparameters,
             enable_logger=enable_logger,
