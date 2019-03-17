@@ -28,6 +28,7 @@ class DQN(Agent):
         "learn_every": 4,
         "hard_update_every": 5
     }
+    
     ALGORITHM = "DQN"
 
     def __init__(self,
@@ -110,6 +111,19 @@ class DQN(Agent):
             "Q-Network (Target):",
             self.qnetwork_target
         ))
+
+    def origin(self):
+        print('https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf')
+    
+    def description(self):
+        description = (
+            'DQN is an algorithm created by DeepMind that brings together the power '
+            'of the Q-Learning algorithm with the advantages of generalization through '
+            'function approximation. It uses a deep neural network to estimate a Q-value '
+            'function. As such, the input to the network is the current state of the '
+            'environment, and the output is the Q-value for each possible action.'
+        )
+        print(description)
 
     def step(self, state, action, reward, next_state, done, logger=None):
         """Saves experience to replay memory and updates model weights"""

@@ -1,9 +1,10 @@
 import os
+from abc import ABC, abstractmethod
 
 import torch
 
 
-class Agent:
+class Agent(ABC):
     REQUIRED_HYPERPARAMETERS = {}
     ALGORITHM = None
 
@@ -16,6 +17,14 @@ class Agent:
         # This minimizes the code written to use the hyperparameters
         for key, value in self.REQUIRED_HYPERPARAMETERS.items():
             setattr(self, key.upper(), value)
+
+    @abstractmethod
+    def origin(self):
+        pass
+    
+    @abstractmethod
+    def description(self):
+        pass
 
     def reset(self):
         if hasattr(self, "noise"):
