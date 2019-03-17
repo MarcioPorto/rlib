@@ -69,6 +69,12 @@ class GymEnvironment(BaseEnvironment):
     def is_action_discrete(self):
         return isinstance(self.action_space, gym.spaces.discrete.Discrete)
 
+    def normalize_observation(self, obs):
+        """ Normalizes the observation received from the environment. 
+        Users must override this function if any transformation is needed. 
+        """
+        return obs
+
     def train(self, num_episodes: int = 100, max_t: int = None, add_noise: bool = True, 
               scores_window_size: int = 100, save_every: int = None) -> List[float]:
         """Trains agent(s) through interaction with this environment.
@@ -99,6 +105,7 @@ class GymEnvironment(BaseEnvironment):
             save_info = save_every and i_episode % save_every == 0
 
             observation = self.env.reset()
+            observation = self.normalize_observation(observation)
             scores = np.zeros(self.num_agents)
             rewards = []
             self.algorithm.reset()
@@ -115,6 +122,8 @@ class GymEnvironment(BaseEnvironment):
 
                 action = self.act(observation, add_noise=add_noise, logger=self.logger)
                 next_observation, reward, done, _ = self.env.step(action)
+                next_observation = self.normalize_observation(next_observation)
+
                 self.algorithm.step(
                     observation, action, reward, next_observation, done,
                     logger=self.logger
