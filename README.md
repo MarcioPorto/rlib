@@ -1,6 +1,6 @@
 # rlib
 
-`rlib` is a small deep reinforcement learning library with implementations of popular deep RL algorithms. Each algorithm is highly modular and customizable, making this library a great choice for anyone who wants to test the performance of different algorithms in the same environment. `rlib` uses PyTorch as the library of choice for its initial version, but support for other libraries like TensorFlow are on the roadmap for the future.
+`rlib` is a small deep reinforcement learning library with implementations of popular deep RL algorithms. Each algorithm is highly modular and customizable, making this library a great choice for anyone who wants to test the performance of different algorithms in the same environment. `rlib` uses PyTorch as the library of choice for its initial version, but support for TensorFlow is on the roadmap.
 
 ## Installation
 
