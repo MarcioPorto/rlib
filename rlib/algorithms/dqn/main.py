@@ -20,13 +20,13 @@ class DQN(Agent):
     # TODO: Ensure that this cannot be changed in other ways
     # TODO: Look up original value for these params
     REQUIRED_HYPERPARAMETERS = {
-        "buffer_size": int(2e5),
-        "batch_size": 64,
-        "gamma": 0.95,
-        "learning_rate": 5e-4,
+        "buffer_size": int(1e7),
+        "batch_size": 32,
+        "gamma": 0.99,
+        "learning_rate": 2.5e-4,
         "tau": 1e-3,
         "learn_every": 4,
-        "hard_update_every": 5
+        "hard_update_every": 10000
     }
     
     ALGORITHM = "DQN"

@@ -24,7 +24,7 @@ class DDPG(Agent):
         "learning_rate_critic": 1e-3,
         "weight_decay": 1e-2,
         "learn_every": 4,
-        "hard_update_every": 5
+        "hard_update_every": 4
     }
 
     def __init__(self,
