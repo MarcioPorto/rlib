@@ -5,9 +5,14 @@ from rlib.environments.gym import GymEnvironment
 
 
 def main(seed=0):
-    env = GymEnvironment("CartPole-v0")
-    vpg = VPG(env.observation_size, env.action_size, seed=seed)
-    env.set_algorithm(vpg)
+    e = gym.make('CartPole-v0')
+    e.seed(seed)
+
+    observation_size = 4
+    action_size = 2
+
+    vpg = VPG(observation_size, action_size, seed=seed)
+    env = GymEnvironment(e, vpg)
     env.train()
     env.test()
 
