@@ -25,9 +25,13 @@ Using `rlib` is this simple:
 from rlib.algorithms.dqn import DQN
 from rlib.environments.gym import GymEnvironment
 
-e = gym.make("CartPole-v0")
-dqn = DQN(state_size=4, action_size=2)
 
+e = gym.make('CartPole-v0')
+
+observation_size = 4
+action_size = 2
+
+dqn = DQN(observation_size, action_size)
 env = GymEnvironment(e, dqn)
 env.train()
 env.test()
