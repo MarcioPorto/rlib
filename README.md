@@ -34,7 +34,7 @@ env.test()
 
 1. Initialize `Logger` and/or `GIFRecorder` objects. 
 
-```
+```python
 os.makedirs('your/log/dir', exist_ok=True)
 
 logger = Logger(output_dir)
@@ -43,7 +43,7 @@ gifs_recorder = GIFRecorder(output_dir, duration=3.0)
 
 2. Initialize a new environment using these objects.
 
-```
+```python
 env = GymEnvironment(e, dqn, logger=logger, gifs_recorder=gifs_recorder)
 ```
 
@@ -57,7 +57,7 @@ tensorboard --logdir=your/log/dir
 
 1. Define your own custom model.
 
-```
+```python
 class NeuralNet(torch.nn.Module):
     def __init__(self):
         super(NeuralNet, self).__init__()
@@ -74,7 +74,7 @@ class NeuralNet(torch.nn.Module):
 
 2. Check the documentation for the algorithm you are using for the appropriate argument name. For DQN:
 
-```
+```python
 dqn = DQN(
     observation_size, action_size,
     qnetwork_local=NeuralNet(),
