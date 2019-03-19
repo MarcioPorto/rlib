@@ -10,4 +10,5 @@ from rlib.algorithms.base import Agent
 
 
 class A3C(Agent):
+    """A3C Agent implementation."""
     raise NotImplementedError()

@@ -10,4 +10,5 @@ from rlib.algorithms.base import Agent
 
 
 class SAC(Agent):
+    """SAC Agent implementation."""
     raise NotImplementedError()

@@ -16,7 +16,7 @@ from rlib.shared.utils import hard_update, soft_update
 
 
 class MADDPG(Agent):
-    """Wrapper class managing different agents in the environment."""
+    """MADDPG implementation."""
 
     REQUIRED_HYPERPARAMETERS = {
         "buffer_size": int(1e6),
