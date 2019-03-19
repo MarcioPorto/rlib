@@ -4,10 +4,10 @@ rlib.algorithms.maddpg package
 Submodules
 ----------
 
-rlib.algorithms.maddpg.main module
-----------------------------------
+rlib.algorithms.maddpg.agent module
+-----------------------------------
 
-.. automodule:: rlib.algorithms.maddpg.main
+.. automodule:: rlib.algorithms.maddpg.agent
     :members:
     :undoc-members:
     :show-inheritance:

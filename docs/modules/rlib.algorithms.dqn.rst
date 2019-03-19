@@ -4,10 +4,10 @@ rlib.algorithms.dqn package
 Submodules
 ----------
 
-rlib.algorithms.dqn.main module
--------------------------------
+rlib.algorithms.dqn.agent module
+--------------------------------
 
-.. automodule:: rlib.algorithms.dqn.main
+.. automodule:: rlib.algorithms.dqn.agent
     :members:
     :undoc-members:
     :show-inheritance:

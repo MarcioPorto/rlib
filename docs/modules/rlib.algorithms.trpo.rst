@@ -4,10 +4,10 @@ rlib.algorithms.trpo package
 Submodules
 ----------
 
-rlib.algorithms.trpo.main module
---------------------------------
+rlib.algorithms.trpo.agent module
+---------------------------------
 
-.. automodule:: rlib.algorithms.trpo.main
+.. automodule:: rlib.algorithms.trpo.agent
     :members:
     :undoc-members:
     :show-inheritance:

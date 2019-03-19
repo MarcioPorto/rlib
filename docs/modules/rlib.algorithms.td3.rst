@@ -4,10 +4,10 @@ rlib.algorithms.td3 package
 Submodules
 ----------
 
-rlib.algorithms.td3.main module
--------------------------------
+rlib.algorithms.td3.agent module
+--------------------------------
 
-.. automodule:: rlib.algorithms.td3.main
+.. automodule:: rlib.algorithms.td3.agent
     :members:
     :undoc-members:
     :show-inheritance:

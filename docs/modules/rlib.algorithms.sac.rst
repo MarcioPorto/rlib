@@ -4,10 +4,10 @@ rlib.algorithms.sac package
 Submodules
 ----------
 
-rlib.algorithms.sac.main module
--------------------------------
+rlib.algorithms.sac.agent module
+--------------------------------
 
-.. automodule:: rlib.algorithms.sac.main
+.. automodule:: rlib.algorithms.sac.agent
     :members:
     :undoc-members:
     :show-inheritance:

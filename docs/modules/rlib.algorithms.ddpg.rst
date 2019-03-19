@@ -4,10 +4,10 @@ rlib.algorithms.ddpg package
 Submodules
 ----------
 
-rlib.algorithms.ddpg.main module
---------------------------------
+rlib.algorithms.ddpg.agent module
+---------------------------------
 
-.. automodule:: rlib.algorithms.ddpg.main
+.. automodule:: rlib.algorithms.ddpg.agent
     :members:
     :undoc-members:
     :show-inheritance:

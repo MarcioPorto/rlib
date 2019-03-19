@@ -4,10 +4,10 @@ rlib.algorithms.ppo package
 Submodules
 ----------
 
-rlib.algorithms.ppo.main module
--------------------------------
+rlib.algorithms.ppo.agent module
+--------------------------------
 
-.. automodule:: rlib.algorithms.ppo.main
+.. automodule:: rlib.algorithms.ppo.agent
     :members:
     :undoc-members:
     :show-inheritance:

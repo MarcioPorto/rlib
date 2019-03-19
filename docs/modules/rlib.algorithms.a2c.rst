@@ -4,10 +4,10 @@ rlib.algorithms.a2c package
 Submodules
 ----------
 
-rlib.algorithms.a2c.main module
--------------------------------
+rlib.algorithms.a2c.agent module
+--------------------------------
 
-.. automodule:: rlib.algorithms.a2c.main
+.. automodule:: rlib.algorithms.a2c.agent
     :members:
     :undoc-members:
     :show-inheritance:

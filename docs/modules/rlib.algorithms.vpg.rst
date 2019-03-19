@@ -4,10 +4,10 @@ rlib.algorithms.vpg package
 Submodules
 ----------
 
-rlib.algorithms.vpg.main module
--------------------------------
+rlib.algorithms.vpg.agent module
+--------------------------------
 
-.. automodule:: rlib.algorithms.vpg.main
+.. automodule:: rlib.algorithms.vpg.agent
     :members:
     :undoc-members:
     :show-inheritance:
