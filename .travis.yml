@@ -2,9 +2,6 @@ language: python
 cache: pip
 python:
   - python: 3.6
-  - python: 3.7
-    dist: xenial
-    sudo: true
 install:
   - sudo apt-get update
   - pip3 install -r requirements.txt
