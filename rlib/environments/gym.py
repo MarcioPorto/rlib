@@ -16,14 +16,18 @@ class GymEnvironment(BaseEnvironment):
                  algorithm,
                  seed: int = 0,
                  logger: Logger = None,
-                 gifs_recorder: GIFRecorder = None) -> None:
-        r"""Initializes an OpenAI Gym environment
+                 gifs_recorder: GIFRecorder = None):
+        """Initializes an OpenAI Gym environment
 
-        Params
-        ======
-        seed (int): Environment seed
-        logger (Logger): Tensorboard logger helper
-        gifs_recorder (GIFRecorder): GIF recorder helper
+        Args:
+            env: A Gym environment.
+            algorithm: An instance of an algorithm.
+            seed (int): Environment seed.
+            logger (Logger): Tensorboard logger helper.
+            gifs_recorder (GIFRecorder): GIF recorder helper.
+
+        Returns:
+            An instance of GymEnvironment.
         """
         self.env = env
         self._env_name = self.env.unwrapped.spec.id
@@ -40,21 +44,25 @@ class GymEnvironment(BaseEnvironment):
 
         self.episode_scores = []
 
-    def __str__(self):
-        r"""Helper to print information about this environment."""
+    def __str__(self) -> str:
+        """Helper to print information about this environment.
+        
+        Returns:
+            A description of this GymEnvironment.
+        """
         return ("{}\n{}\n{}".format(
             "Environment name: {}".format(self._env_name),
             "Observation space: {}".format(self.observation_space),
             "Action space: {}".format(self.action_space),
         ))
 
-    def start_env(self):
-        r"""Helper to start an environment"""
+    def start_env(self) -> None:
+        """Helper to start an environment."""
         self.env = gym.make(self._env_name)
         self.env.seed(self.seed)
 
-    def close_env(self):
-        r"""Helper to close an environment"""
+    def close_env(self) -> None:
+        """Helper to close an environment."""
         self.env.close()
 
     def is_observation_box(self):
@@ -70,8 +78,12 @@ class GymEnvironment(BaseEnvironment):
         return isinstance(self.action_space, gym.spaces.discrete.Discrete)
 
     def normalize_observation(self, obs):
-        """ Normalizes the observation received from the environment. 
-        Users must override this function if any transformation is needed. 
+        """ Normalizes the observation received from the environment.
+
+        NOTE: Users must override this function if any transformation is needed. 
+
+        Returns:
+            The normalized observation.
         """
         return obs
 
@@ -79,13 +91,15 @@ class GymEnvironment(BaseEnvironment):
               scores_window_size: int = 100, save_every: int = None) -> List[float]:
         """Trains agent(s) through interaction with this environment.
 
-        Params
-        ======
-        num_episodes (int): Number of episodes to train the agent for
-        max_t (int): Maximum number of timesteps in an episode
-        add_noise (boolean): Add noise to actions
-        scores_window_size (int): Window size for average score display
-        save_every (int): Save state dicts every `save_every` episodes
+        Args:
+            num_episodes (int): Number of episodes to train the agent for.
+            max_t (int): Maximum number of timesteps in an episode.
+            add_noise (boolean): Add noise to actions.
+            scores_window_size (int): Window size for average score display.
+            save_every (int): Save state dicts every `save_every` episodes.
+
+        Returns:
+            The scores for each episode.
         """
         widget = [
             "Episode: ", pb.Counter(), '/' , str(num_episodes), ' ',
@@ -164,11 +178,10 @@ class GymEnvironment(BaseEnvironment):
              render: bool = True) -> None:
         """Runs trained agent(s) in this environment.
 
-        Params
-        ======
-        num_episodes (int): Number of episodes to run this test for
-        load_state_dicts (boolean): Load state dicts for each agent
-        render (boolean): Render environment state
+        Args:
+            num_episodes (int): Number of episodes to run this test for
+            load_state_dicts (boolean): Load state dicts for each agent
+            render (boolean): Render environment state
         """
         if load_state_dicts:
             self.algorithm.load_state_dicts()

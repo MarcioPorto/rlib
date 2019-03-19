@@ -44,8 +44,8 @@ class MADDPG(Agent):
                  logger_comment=None,
                  opt_soft_update=False):
         """Initialize a MADDPGAgent wrapper.
-        Params
-        ======
+       
+        Args:
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             num_agents (int): the number of agents in the environment

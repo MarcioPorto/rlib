@@ -42,8 +42,8 @@ class DDPG(Agent):
                  device: str = "cpu",
                  model_output_dir: str = None,
                  enable_logger: bool = False,
-                 logger_path=None,
-                 logger_comment=None,
+                 logger_path: str = None,
+                 logger_comment: str = None,
                  opt_soft_update: bool = False):
         """Initialize an DDPGAgent object.
 
