@@ -15,7 +15,7 @@ pip install rlib
 Using `rlib` is this simple:
 
 ```python
-from rlib.algorithms.dqn import DQN
+from rlib.algorithms.dqn import DQNAgent
 from rlib.environments.gym import GymEnvironment
 
 
@@ -24,7 +24,7 @@ e = gym.make('CartPole-v0')
 observation_size = 4
 action_size = 2
 
-dqn = DQN(observation_size, action_size)
+dqn = DQNAgent(observation_size, action_size)
 env = GymEnvironment(e, dqn)
 env.train()
 env.test()
@@ -77,7 +77,7 @@ class NeuralNet(torch.nn.Module):
 2. Check the documentation for the algorithm you are using for the appropriate argument name. For DQN:
 
 ```python
-dqn = DQN(
+dqn = DQNAgent(
     observation_size, action_size,
     qnetwork_local=NeuralNet(),
     qnetwork_target=NeuralNet(),

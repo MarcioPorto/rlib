@@ -9,6 +9,6 @@ from torch.distributions import Categorical
 from rlib.algorithms.base import Agent
 
 
-class A2C(Agent):
-    """A2C Agent implementation."""
+class TD3Agent(Agent):
+    """TD3 Agent implementation."""
     raise NotImplementedError()

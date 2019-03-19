@@ -1,1 +1,1 @@
-from .main import A3C
+from .agent import A3CAgent

@@ -10,7 +10,7 @@ from rlib.algorithms.base import Agent
 from rlib.algorithms.vpg.model import Policy
 
 
-class PPO(Agent):
+class PPOAgent(Agent):
     """PPO Agent implementation."""
 
     # TODO: Consider how to extend this to accept multiple agents?

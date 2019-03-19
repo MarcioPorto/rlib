@@ -12,7 +12,7 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class DDPG(Agent):
+class DDPGAgent(Agent):
     """DDPG Agent implementation."""
 
     REQUIRED_HYPERPARAMETERS = {
@@ -66,7 +66,7 @@ class DDPG(Agent):
         Returns:
             An instance of DDPGAgent.
         """
-        super(DDPG, self).__init__(
+        super(DDPGAgent, self).__init__(
             new_hyperparameters=new_hyperparameters,
             enable_logger=enable_logger,
             logger_path=logger_path,

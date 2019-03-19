@@ -10,7 +10,7 @@ from rlib.algorithms.base import Agent
 from rlib.algorithms.vpg.model import Policy
 
 
-class VPG(Agent):
+class VPGAgent(Agent):
     """VPG Agent implementation."""
 
     # TODO: Consider how to extend this to accept multiple agents?
@@ -33,7 +33,7 @@ class VPG(Agent):
                  enable_logger: bool = False,
                  logger_path: str = None,
                  logger_comment: str = None):
-        """Initialize an DDPGAgent object.
+        """Initialize an VPGAgent object.
 
         Args:
             state_size (int): dimension of each state.
@@ -48,7 +48,7 @@ class VPG(Agent):
         Returns:
             An instance of VPGAgent.
         """
-        super(VPG, self).__init__(
+        super(VPGAgent, self).__init__(
             new_hyperparameters=new_hyperparameters,
             enable_logger=enable_logger,
             logger_path=logger_path,

@@ -15,7 +15,7 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class MADDPG(Agent):
+class MADDPGAgent(Agent):
     """MADDPG implementation."""
 
     REQUIRED_HYPERPARAMETERS = {

@@ -1,1 +1,1 @@
-from .main import TD3
+from .agent import TD3Agent

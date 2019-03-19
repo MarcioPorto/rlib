@@ -11,7 +11,7 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class DQN(Agent):
+class DQNAgent(Agent):
     """DQN Agent implementation."""
 
     # TODO: Consider how to extend this to accept multiple agents?
@@ -61,7 +61,7 @@ class DQN(Agent):
         Returns:
             An instance of DQNAgent.
         """
-        super(DQN, self).__init__(
+        super(DQNAgent, self).__init__(
             new_hyperparameters=new_hyperparameters
         )
 

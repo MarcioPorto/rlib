@@ -1,1 +1,1 @@
-from .main import DDPG
+from .agent import DDPGAgent
