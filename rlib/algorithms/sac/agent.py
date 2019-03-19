@@ -11,4 +11,6 @@ from rlib.algorithms.base import Agent
 
 class SACAgent(Agent):
     """SAC Agent implementation."""
-    raise NotImplementedError()
+    
+    def __init__(self):
+        raise NotImplementedError()

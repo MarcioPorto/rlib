@@ -7,6 +7,11 @@ __pycache__/
 .vscode/
 .pytest_cache/
 
+# Docs
+_build
+_static
+_templates
+
 # Environments
 venv/
 .env

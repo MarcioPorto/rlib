@@ -11,4 +11,6 @@ from rlib.algorithms.base import Agent
 
 class TD3Agent(Agent):
     """TD3 Agent implementation."""
-    raise NotImplementedError()
+    
+    def __init__(self):
+        raise NotImplementedError()

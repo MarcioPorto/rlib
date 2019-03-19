@@ -11,4 +11,6 @@ from rlib.algorithms.base import Agent
 
 class TRPOAgent(Agent):
     """TRPO Agent implementation."""
-    raise NotImplementedError()
+    
+    def __init__(self):
+        raise NotImplementedError()
