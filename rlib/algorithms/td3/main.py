@@ -10,4 +10,5 @@ from rlib.algorithms.base import Agent
 
 
 class TD3(Agent):
+    """TD3 Agent implementation."""
     raise NotImplementedError()

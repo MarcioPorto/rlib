@@ -10,4 +10,5 @@ from rlib.algorithms.base import Agent
 
 
 class A2C(Agent):
+    """A2C Agent implementation."""
     raise NotImplementedError()
