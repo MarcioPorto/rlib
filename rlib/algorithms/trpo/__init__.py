@@ -1,1 +1,1 @@
-from .main import TRPO
+from .agent import TRPOAgent

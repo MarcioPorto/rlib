@@ -5,6 +5,12 @@ dist/
 __pycache__/
 .ipynb_checkpoints/
 .vscode/
+.pytest_cache/
+
+# Docs
+_build
+_static
+_templates
 
 # Environments
 venv/

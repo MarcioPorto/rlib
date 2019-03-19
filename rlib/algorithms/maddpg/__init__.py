@@ -1,1 +1,1 @@
-from .main import MADDPG
+from .agent import MADDPGAgent

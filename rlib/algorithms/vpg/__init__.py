@@ -1,1 +1,1 @@
-from .main import VPG
+from .agent import VPGAgent

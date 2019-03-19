@@ -9,5 +9,8 @@ from torch.distributions import Categorical
 from rlib.algorithms.base import Agent
 
 
-class TRPO(Agent):
-    raise NotImplementedError()
+class TD3Agent(Agent):
+    """TD3 Agent implementation."""
+    
+    def __init__(self):
+        raise NotImplementedError()

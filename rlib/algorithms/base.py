@@ -5,10 +5,16 @@ import torch
 
 
 class Agent(ABC):
+    """Default Agent implementation.
+    
+    All other agents must inherit this class.
+    """
+
     REQUIRED_HYPERPARAMETERS = {}
     ALGORITHM = None
 
     def __init__(self, *args, **kwargs):
+        """Shared Agent initialization."""
         if "new_hyperparameters" in kwargs:
             if isinstance(kwargs["new_hyperparameters"], dict):
                 self._set_hyperparameters(kwargs["new_hyperparameters"])
@@ -27,32 +33,39 @@ class Agent(ABC):
         pass
 
     def reset(self):
+        """Resets noise."""
         if hasattr(self, "noise"):
             self.noise.reset()
 
     def act(self, state, add_noise=False, logger=None):
-        """Default `act` implementation"""
+        """Default `act` implementation."""
         pass
 
     def step(self, state, action, reward, next_state, done, logger=None):
-        """Default `step` implementation"""
+        """Default `step` implementation."""
         pass
 
     def learn(self, experiences, logger=None):
-        """Default `learn` implementation"""
+        """Default `learn` implementation."""
         pass
 
     def update(self, rewards, logger=None):
-        """Default `update` implementation"""
+        """Default `update` implementation."""
         pass
 
     def get_hyperparameters(self):
-        """Returns the current state of the required hyperparameters"""
+        """Returns the current state of the required hyperparameters.
+        
+        Returns:
+            A dictionary of hyperparameters.
+        """
         return self.REQUIRED_HYPERPARAMETERS
 
     def _set_hyperparameters(self, new_hyperparameters):
-        """Adds user defined hyperparameter values to the list required
-        hyperparameters.
+        """Adds user defined hyperparameter values to the list required hyperparameters.
+
+        Args:
+            new_hyperparameters: A dictionary containing the new hyperparameter values.
         """
         for key, value in new_hyperparameters.items():
             if key in self.REQUIRED_HYPERPARAMETERS.keys():

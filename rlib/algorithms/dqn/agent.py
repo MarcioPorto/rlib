@@ -11,8 +11,8 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class DQN(Agent):
-    """Interacts with and learns from the environment."""
+class DQNAgent(Agent):
+    """DQN Agent implementation."""
 
     # TODO: Consider how to extend this to accept multiple agents?
     # TODO: Add noise to DQN?
@@ -32,33 +32,36 @@ class DQN(Agent):
     ALGORITHM = "DQN"
 
     def __init__(self,
-                 state_size,
-                 action_size,
+                 state_size: int,
+                 action_size: int,
                  qnetwork_local=None,
                  qnetwork_target=None,
                  optimizer=None,
                  new_hyperparameters=None,
-                 seed=0,
-                 device="cpu",
-                 model_output_dir=None,
-                 opt_soft_update=False,
-                 opt_ddqn=False):
-        """Initialize an Agent object.
+                 seed: int = 0,
+                 device: str = "cpu",
+                 model_output_dir: str = None,
+                 opt_soft_update: bool = False,
+                 opt_ddqn: bool = False):
+        """Initialize an DQNAgent object.
 
         Args:
-            state_size (int): Dimension of each state
-            action_size (int): Dimension of each action
-            qnetwork_local (torch.nn.Module): Local Q-Network model
-            qnetwork_target (torch.nn.Module): Target Q-Network model
-            optimizer (torch.optim): Local Q-Network optimizer
-            new_hyperparameters (dict): New hyperparameter values
-            seed (int): Random seed
-            device (str): Identifier for device to be used by PyTorch
-            model_output_dir (str): Directory where state dicts will be saved to
-            opt_soft_update (bool): Use soft update instead of hard update
-            opt_ddqn (bool): Use Double DQN for `expected_Q`
+            state_size (int): Dimension of each state.
+            action_size (int): Dimension of each action.
+            qnetwork_local (torch.nn.Module): Local Q-Network model.
+            qnetwork_target (torch.nn.Module): Target Q-Network model.
+            optimizer (torch.optim): Local Q-Network optimizer.
+            new_hyperparameters (dict): New hyperparameter values.
+            seed (int): Random seed.
+            device (str): Identifier for device to be used by PyTorch.
+            model_output_dir (str): Directory where state dicts will be saved to.
+            opt_soft_update (bool): Use soft update instead of hard update.
+            opt_ddqn (bool): Use Double DQN for `expected_Q`.
+        
+        Returns:
+            An instance of DQNAgent.
         """
-        super(DQN, self).__init__(
+        super(DQNAgent, self).__init__(
             new_hyperparameters=new_hyperparameters
         )
 
@@ -103,8 +106,12 @@ class DQN(Agent):
         # Ensure local and target networks have the same initial weight
         hard_update(self.qnetwork_local, self.qnetwork_target)
 
-    def __str__(self):
-        """Helper to output network architecture for the agent."""
+    def __str__(self) -> str:
+        """Helper to output network architecture for the agent.
+        
+        Returns:
+            A string representation of this algorithm.
+        """
         return ("{}\n{}\n{}\n{}".format(
             "Q-Network (Local):",
             self.qnetwork_local,
@@ -112,10 +119,20 @@ class DQN(Agent):
             self.qnetwork_target
         ))
 
-    def origin(self):
-        print('https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf')
+    def origin(self) -> str:
+        """Helper to get the original paper for this algorithm.
+
+        Returns: 
+            The original paper for this algorithm.
+        """
+        return 'https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf'
     
-    def description(self):
+    def description(self) -> str:
+        """Helper to get a brief description of this algorithm.
+
+        Returns:
+            A brief description of this algorithm.
+        """
         description = (
             'DQN is an algorithm created by DeepMind that brings together the power '
             'of the Q-Learning algorithm with the advantages of generalization through '
@@ -123,10 +140,19 @@ class DQN(Agent):
             'function. As such, the input to the network is the current state of the '
             'environment, and the output is the Q-value for each possible action.'
         )
-        print(description)
+        return description
 
-    def step(self, state, action, reward, next_state, done, logger=None):
-        """Saves experience to replay memory and updates model weights"""
+    def step(self, state, action, reward, next_state, done, logger=None) -> None:
+        """Saves experience to replay memory and updates model weights.
+
+        Args:
+            state: Environment states.
+            action: Environment actions.
+            reward: Rewards for the actions above.
+            next_state: Next environment states.
+            done (bool): Boolean indicating if the environment has terminated. 
+            logger (Logger): An instance of Logger.
+        """
         self.memory.add(state, action, reward, next_state, done)
 
         # Learn every `learn_every` time steps
@@ -140,9 +166,13 @@ class DQN(Agent):
         """Returns actions for given state as per current policy.
 
         Args:
-            state (numpy array): Current state
-            eps (float): Epsilon, for Epsilon-greedy action selection
-            add_noise (boolean): Add noise to the agent's actions?
+            state: The current state of the environment.
+            eps (float): Epsilon, for Epsilon-greedy action selection.
+            add_noise (bool): Controls addition of noise.
+            logger (Logger): An instance of Logger.
+
+        Returns: 
+            Actions for given state as per current policy.
         """
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         self.qnetwork_local.eval()
@@ -156,11 +186,12 @@ class DQN(Agent):
         else:
             return random.choice(np.arange(self.action_size))
 
-    def learn(self, experiences, logger=None):
+    def learn(self, experiences, logger=None) -> None:
         """Updates value parameters using given batch of experience tuples.
 
         Args:
-            experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
+            experiences (Tuple[torch.Tensor]): Tuple of (s, a, r, s', done) tuples.
+            logger (Logger): An instance of Logger.
         """
         states, actions, rewards, next_states, dones = experiences
 

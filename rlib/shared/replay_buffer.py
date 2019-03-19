@@ -6,17 +6,19 @@ import torch
 
 
 class ReplayBuffer:
-    """ Fixed-size buffer to store experience tuples. """
+    """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, buffer_size, batch_size, device, seed=0):
+    def __init__(self, buffer_size: int, batch_size: int, device: str, seed: int = 0):
         """ Initializes a ReplayBuffer object.
 
-        Params
-        ======
-            buffer_size (int): maximum size of buffer
-            batch_size (int): size of each training batch
-            device (str): PyTorch device
-            seed (int): random seed
+        Args:
+            buffer_size (int): maximum size of buffer.
+            batch_size (int): size of each training batch.
+            device (str): PyTorch device.
+            seed (int): random seed.
+
+        Returns:
+            An instance of ReplayBuffer.
         """
         self.seed = random.seed(seed)
         self.memory = deque(maxlen=buffer_size)
@@ -25,12 +27,24 @@ class ReplayBuffer:
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
 
     def add(self, state, action, reward, next_state, done):
-        """ Adds a new experience to memory. """
+        """Adds a new experience to memory.
+        
+        Args:
+            state: Environment state.
+            action: Environment action.
+            reward: Reward for the actions above.
+            next_state: Next environment state.
+            done (bool): Boolean indicating if the environment has terminated. 
+        """
         e = self.experience(state, action, reward, next_state, done)
         self.memory.append(e)
 
     def sample(self):
-        """ Randomly samples a batch of experiences from memory. """
+        """Randomly samples a batch of experiences from memory. 
+        
+        Returns:
+            A tuple of (states, actions, rewards, next_states, dones).
+        """
         experiences = random.sample(self.memory, k=self.batch_size)
 
         st = [e.state for e in experiences if e is not None]
@@ -58,5 +72,9 @@ class ReplayBuffer:
         return states, actions, rewards, next_states, dones
 
     def __len__(self):
-        """ Returns the current size of the memory deque. """
+        """Current size of the memory deque.
+
+        Returns: 
+            Current size of the memory deque.
+        """
         return len(self.memory)

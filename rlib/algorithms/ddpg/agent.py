@@ -12,8 +12,8 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class DDPG(Agent):
-    """Interacts with and learns from the environment."""
+class DDPGAgent(Agent):
+    """DDPG Agent implementation."""
 
     REQUIRED_HYPERPARAMETERS = {
         "buffer_size": int(1e6),
@@ -28,9 +28,9 @@ class DDPG(Agent):
     }
 
     def __init__(self,
-                 state_size,
-                 action_size,
-                 num_agents,
+                 state_size: int,
+                 action_size: int,
+                 num_agents: int,
                  actor_local=None,
                  actor_target=None,
                  actor_optimizer=None,
@@ -38,22 +38,35 @@ class DDPG(Agent):
                  critic_target=None,
                  critic_optimizer=None,
                  new_hyperparameters=None,
-                 seed=0,
-                 device="cpu",
-                 model_output_dir=None,
-                 enable_logger=False,
-                 logger_path=None,
-                 logger_comment=None,
-                 opt_soft_update=False):
-        """Initialize an Agent object.
+                 seed: int = 0,
+                 device: str = "cpu",
+                 model_output_dir: str = None,
+                 enable_logger: bool = False,
+                 logger_path: str = None,
+                 logger_comment: str = None,
+                 opt_soft_update: bool = False):
+        """Initialize an DDPGAgent object.
 
-        Params
-        ======
-            state_size (int): dimension of each state
-            action_size (int): dimension of each action
-            num_agents (int): number of agents in the environment
+        Args:
+            state_size (int): dimension of each state.
+            action_size (int): dimension of each action.
+            num_agents (int): number of agents in the environment.
+            actor_local (torch.nn.Module): Local Actor model.
+            actor_target (torch.nn.Module): Target Actor model.
+            actor_optimizer (torch.optim): Actor optimizer.
+            critic_local (torch.nn.Module): Local Critic model.
+            critic_target (torch.nn.Module): Target Critic model.
+            critic_optimizer (torch.optim): Critic optimizer.
+            new_hyperparameters (dict): New hyperparameter values.
+            seed (int): Random seed.
+            device (str): Identifier for device to be used by PyTorch.
+            model_output_dir (str): Directory where state dicts will be saved to.
+            opt_soft_update (bool): Use soft update instead of hard update.
+
+        Returns:
+            An instance of DDPGAgent.
         """
-        super(DDPG, self).__init__(
+        super(DDPGAgent, self).__init__(
             new_hyperparameters=new_hyperparameters,
             enable_logger=enable_logger,
             logger_path=logger_path,
@@ -99,8 +112,12 @@ class DDPG(Agent):
         hard_update(self.actor_local, self.actor_target)
         hard_update(self.critic_local, self.critic_target)
 
-    def __str__(self):
-        r"""Helper to output network architecture for the agent."""
+    def __str__(self) -> str:
+        """Helper to output network architecture for the agent.
+        
+        Returns:
+            A string representation of this algorithm.
+        """
         return ("{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
             "Actor (Local):",
             self.actor_local,
@@ -112,10 +129,20 @@ class DDPG(Agent):
             self.critic_target
         ))
 
-    def origin(self):
-        print('https://arxiv.org/pdf/1509.02971.pdf')
+    def origin(self) -> str:
+        """Helper to get the original paper for this algorithm.
+
+        Returns: 
+            The original paper for this algorithm.
+        """
+        return 'https://arxiv.org/pdf/1509.02971.pdf'
     
-    def description(self):
+    def description(self) -> str:
+        """Helper to get a brief description of this algorithm.
+
+        Returns:
+            A brief description of this algorithm.
+        """
         description = (
             'DDPG was introduced as an actor-critic method that performs well '
             'in environments with a continuous action space, which is a known '
@@ -123,10 +150,19 @@ class DDPG(Agent):
             'deterministic policy gradient (DPG) algorithm by using a neural '
             'network to take advantage of generalization and function approximation.'
         )
-        print(description)
+        return description
 
-    def step(self, states, actions, rewards, next_states, dones, logger=None):
-        """Save experience in replay memory, and use random sample from buffer to learn."""
+    def step(self, states, actions, rewards, next_states, dones, logger=None) -> None:
+        """Save experience in replay memory, and use random sample from buffer to learn.
+
+        Args:
+            states: Environment states.
+            actions: Environment actions.
+            rewards: Rewards for the actions above.
+            next_states: Next environment states.
+            dones (bool): Boolean indicating if the environment has terminated. 
+            logger (Logger): An instance of Logger.
+        """
         if self.num_agents == 1:
             self.memory.add(states, actions, rewards, next_states, dones)
         else:
@@ -141,8 +177,17 @@ class DDPG(Agent):
                 experiences = self.memory.sample()
                 self.learn(experiences, logger=logger)
 
-    def act(self, state, add_noise=True, logger=None):
-        """Returns actions for given state as per current policy."""
+    def act(self, state, add_noise: bool = True, logger=None):
+        """Chooses an action for the current state based on the current policy.
+
+        Args:
+            state: The current state of the environment.
+            add_noise (bool): Controls addition of noise.
+            logger (Logger): An instance of Logger.
+
+        Returns: 
+            Actions for given state as per current policy.
+        """
         state = torch.from_numpy(state).float().to(self.device)
 
         if self.num_agents == 1:
@@ -173,15 +218,17 @@ class DDPG(Agent):
             # return np.clip(action, -1, 1)
             return actions
 
-    def learn(self, experiences, logger=None):
+    def learn(self, experiences, logger=None) -> None:
         """Update policy and value parameters using given batch of experience tuples.
+
         Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
         where:
             actor_target(state) -> action
             critic_target(state, action) -> Q-value
-        Params
-        ======
-            experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
+        
+        Args:
+            experiences (Tuple[torch.Tensor]): Tuple of (s, a, r, s', done) tuples.
+            logger (Logger): An instance of Logger.
         """
         states, actions, rewards, next_states, dones = experiences
 

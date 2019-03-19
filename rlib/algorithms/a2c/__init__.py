@@ -1,1 +1,1 @@
-from .main import A2C
+from .agent import A2CAgent

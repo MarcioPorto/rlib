@@ -15,8 +15,8 @@ from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update, soft_update
 
 
-class MADDPG(Agent):
-    """Wrapper class managing different agents in the environment."""
+class MADDPGAgent(Agent):
+    """MADDPG implementation."""
 
     REQUIRED_HYPERPARAMETERS = {
         "buffer_size": int(1e6),
@@ -44,8 +44,8 @@ class MADDPG(Agent):
                  logger_comment=None,
                  opt_soft_update=False):
         """Initialize a MADDPGAgent wrapper.
-        Params
-        ======
+       
+        Args:
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             num_agents (int): the number of agents in the environment

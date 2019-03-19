@@ -9,5 +9,8 @@ from torch.distributions import Categorical
 from rlib.algorithms.base import Agent
 
 
-class SAC(Agent):
-    raise NotImplementedError()
+class SACAgent(Agent):
+    """SAC Agent implementation."""
+    
+    def __init__(self):
+        raise NotImplementedError()

@@ -1,6 +1,6 @@
 import gym
 
-from rlib.algorithms.ddpg import DDPG
+from rlib.algorithms.ddpg import DDPGAgent
 from rlib.environments.gym import GymEnvironment
 
 
@@ -11,7 +11,7 @@ def main(seed=0):
     observation_size = 3
     action_size = 1
 
-    ddpg = DDPG(observation_size, action_size, num_agents=1, seed=seed)
+    ddpg = DDPGAgent(observation_size, action_size, num_agents=1, seed=seed)
     env = GymEnvironment(e, ddpg)
     env.train()
     env.test()

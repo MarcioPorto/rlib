@@ -1,6 +1,6 @@
 import gym
 
-from rlib.algorithms.dqn import DQN
+from rlib.algorithms.dqn import DQNAgent
 from rlib.environments.gym import GymEnvironment
 
 
@@ -11,7 +11,7 @@ def main(seed=0):
     observation_size = 4
     action_size = 2
 
-    dqn = DQN(observation_size, action_size, seed=seed)
+    dqn = DQNAgent(observation_size, action_size, seed=seed)
     env = GymEnvironment(e, dqn)
     env.train()
     env.test()

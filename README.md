@@ -1,5 +1,7 @@
 # rlib
 
+[![Build Status](https://travis-ci.org/MarcioPorto/rlib.svg?branch=master)](https://travis-ci.org/MarcioPorto/rlib)
+
 `rlib` is a small deep reinforcement learning library with implementations of popular deep RL algorithms. Each algorithm is highly modular and customizable, making this library a great choice for anyone who wants to test the performance of different algorithms in the same environment. `rlib` uses PyTorch as the library of choice for its initial version, but support for TensorFlow is on the roadmap.
 
 ## Installation
@@ -13,7 +15,7 @@ pip install rlib
 Using `rlib` is this simple:
 
 ```python
-from rlib.algorithms.dqn import DQN
+from rlib.algorithms.dqn import DQNAgent
 from rlib.environments.gym import GymEnvironment
 
 
@@ -22,7 +24,7 @@ e = gym.make('CartPole-v0')
 observation_size = 4
 action_size = 2
 
-dqn = DQN(observation_size, action_size)
+dqn = DQNAgent(observation_size, action_size)
 env = GymEnvironment(e, dqn)
 env.train()
 env.test()
@@ -34,7 +36,7 @@ env.test()
 
 1. Initialize `Logger` and/or `GIFRecorder` objects. 
 
-```
+```python
 os.makedirs('your/log/dir', exist_ok=True)
 
 logger = Logger(output_dir)
@@ -43,7 +45,7 @@ gifs_recorder = GIFRecorder(output_dir, duration=3.0)
 
 2. Initialize a new environment using these objects.
 
-```
+```python
 env = GymEnvironment(e, dqn, logger=logger, gifs_recorder=gifs_recorder)
 ```
 
@@ -57,7 +59,7 @@ tensorboard --logdir=your/log/dir
 
 1. Define your own custom model.
 
-```
+```python
 class NeuralNet(torch.nn.Module):
     def __init__(self):
         super(NeuralNet, self).__init__()
@@ -74,8 +76,8 @@ class NeuralNet(torch.nn.Module):
 
 2. Check the documentation for the algorithm you are using for the appropriate argument name. For DQN:
 
-```
-dqn = DQN(
+```python
+dqn = DQNAgent(
     observation_size, action_size,
     qnetwork_local=NeuralNet(),
     qnetwork_target=NeuralNet(),

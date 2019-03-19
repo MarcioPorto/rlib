@@ -4,7 +4,7 @@ from tensorboardX import SummaryWriter
 
 class BaseEnvironment:
     def act(self, observations, add_noise=False, logger=None):
-        r"""Picks an action for each agent given their individual observations."""
+        """Picks an action for each agent given their individual observations."""
         action = self.algorithm.act(observations, add_noise=add_noise, logger=logger)
 
         # TODO: Fix this
@@ -16,13 +16,12 @@ class BaseEnvironment:
         #     return action
 
     def plot_scores(self, scores=None, env_solved_score=None):
-        r"""Plots scores for each episode.
+        """Plots scores for each episode.
 
-        Params
-        ======
-        scores (list): List of scores to plot (one per episode)
-        env_solved_score (float): If provided, shows the score where the
-                                  environment is considered solved
+        Args:
+            scores (list): List of scores to plot (one per episode).
+            env_solved_score (float): If provided, shows the score where the
+                                      environment is considered solved.
         """
         if not scores:
             scores = self.episode_scores
@@ -42,12 +41,11 @@ class BaseEnvironment:
         plt.show()
 
     def get_max_score_per_episode(self):
+        """Get max score for the current episode."""
         return np.max(self.scores)
 
     def get_rolling_score_averages(self, window):
-        r"""Helper to get mean score in a rolling window across episode
-        scores.
-        """
+        """Helper to get mean score in a rolling window across episode scores."""
         rolling_score_averages = []
         for i in range(len(self.episode_scores)):
             if i <= window:
@@ -59,5 +57,6 @@ class BaseEnvironment:
             rolling_score_averages.append(average_score)
 
     def get_current_average_score(self, window):
+        """Get the current average score for this environment."""
         s = len(self.episode_scores)
         return np.mean(self.episode_scores) if s <= window else np.mean(self.episode_scores[s-window:])

@@ -1,1 +1,1 @@
-from .main import SAC
+from .agent import SACAgent
