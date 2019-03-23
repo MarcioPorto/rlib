@@ -6,7 +6,7 @@
 
 ## Installation
 
-```
+```bash
 pip install rlib
 ```
 
@@ -51,7 +51,7 @@ env = GymEnvironment(e, dqn, logger=logger, gifs_recorder=gifs_recorder)
 
 3. To check Tensorboard logs, run:
 
-```
+```bash
 tensorboard --logdir=your/log/dir
 ```
 
@@ -92,7 +92,7 @@ dqn = DQNAgent(
 
 To run all tests:
 
-```
+```bash
 python -m unittest discover test/
 ```
 
@@ -102,7 +102,7 @@ python -m unittest discover test/
 
 Feel free to open issues with any bugs found or any feature requests. Pull requests are always welcome for new functionality.
 
-```
+```bash
 virtualenv -p python3 venv
 cd rlib/
 source venv/bin/activate

@@ -72,7 +72,7 @@ class MADDPGAgent(Agent):
             self.agents = [DDPGAgent(state_size, action_size, agent_id=i+1, handler=self) for i in range(num_agents)]
 
         # Replay memory
-        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, self.device, seed)
+        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, seed)
 
         # User options
         self.opt_soft_update = opt_soft_update
@@ -233,6 +233,13 @@ class DDPGAgent(Agent):
             actions_pred (list): prediction for actions for current states from each agent
         """
         states, actions, rewards, next_states, dones = experiences
+
+        states = torch.from_numpy(states).float().to(self.device)
+        actions = torch.from_numpy(actions).float().to(self.device)
+        rewards = torch.from_numpy(rewards).float().to(self.device)
+        next_states = torch.from_numpy(next_states).float().to(self.device)
+        dones = torch.from_numpy(dones.astype(np.uint8)).float().to(self.device)
+        
         agent_id_tensor = torch.tensor([self.agent_id - 1]).to(device)
 
         ### Update critic

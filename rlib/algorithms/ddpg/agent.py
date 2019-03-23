@@ -94,7 +94,7 @@ class DDPGAgent(Agent):
         self.noise = OUNoise(action_size, seed)
 
         # Replay memory
-        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, self.device, seed)
+        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, seed)
 
         # User options
         self.opt_soft_update = opt_soft_update
@@ -231,6 +231,12 @@ class DDPGAgent(Agent):
             logger (Logger): An instance of Logger.
         """
         states, actions, rewards, next_states, dones = experiences
+
+        states = torch.from_numpy(states).float().to(self.device)
+        actions = torch.from_numpy(actions).float().to(self.device)
+        rewards = torch.from_numpy(rewards).float().to(self.device)
+        next_states = torch.from_numpy(next_states).float().to(self.device)
+        dones = torch.from_numpy(dones.astype(np.uint8)).float().to(self.device)
 
         ### Update critic
         # Get predicted next-state actions and Q values from target models
