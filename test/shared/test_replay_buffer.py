@@ -6,7 +6,7 @@ from rlib.shared.replay_buffer import ReplayBuffer
 class ReplayBufferTest(unittest.TestCase):
     def setUp(self):
         self.batch_size = 2
-        self.replay_buffer = ReplayBuffer(10, self.batch_size, "cpu")
+        self.replay_buffer = ReplayBuffer(10, self.batch_size)
         self.populate_replay_buffer()
 
     def populate_replay_buffer(self, n=5):
