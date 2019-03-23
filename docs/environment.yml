@@ -1,0 +1,18 @@
+name: rlib
+
+channels:
+  - anaconda
+  - pytorch
+  - conda-forge
+
+dependencies:
+  - python==3.7
+  - pytorch
+  - numpy
+  - matplotlib
+  - tensorflow
+  - pip:
+      - sphinx-gallery
+      - sphinxcontrib-napoleon
+      - sphinxcontrib-bibtex
+      - sphinxcontrib-inlinesyntaxhighlight
