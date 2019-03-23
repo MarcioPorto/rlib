@@ -59,10 +59,12 @@ class MADDPGAgent(Agent):
             logger_comment=logger_comment
         )
 
+        random.seed(seed)
+
         self.state_size = state_size
         self.action_size = action_size
         self.num_agents = num_agents
-        self.seed = random.seed(seed)
+        self.seed = seed
         self.device = device
         self.time_step = 0
 
@@ -72,7 +74,7 @@ class MADDPGAgent(Agent):
             self.agents = [DDPGAgent(state_size, action_size, agent_id=i+1, handler=self) for i in range(num_agents)]
 
         # Replay memory
-        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, seed)
+        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE)
 
         # User options
         self.opt_soft_update = opt_soft_update
@@ -167,20 +169,22 @@ class DDPGAgent(Agent):
             action_size (int): dimension of each action
             agent_id (int): identifier for this agent
         """
+        random.seed(seed)
+
         self.state_size = state_size
         self.action_size = action_size
         self.agent_id = agent_id
-        self.seed = random.seed(seed)
+        self.seed = seed
         self.device = device
 
         # Actor Network (w/ Target Network)
-        self.actor_local = actor_local if actor_local else Actor(state_size, action_size, seed).to(device)
-        self.actor_target = actor_target if actor_target else Actor(state_size, action_size, seed).to(device)
+        self.actor_local = actor_local if actor_local else Actor(state_size, action_size, self.seed).to(device)
+        self.actor_target = actor_target if actor_target else Actor(state_size, action_size, self.seed).to(device)
         self.actor_optimizer = actor_optimizer if actor_optimizer else optim.Adam(self.actor_local.parameters(), lr=self.handler.LEARNING_RATE_ACTOR)
 
         # Critic Network (w/ Target Network)
-        self.critic_local = critic_local if critic_local else Critic(state_size, action_size, seed).to(device)
-        self.critic_target = critic_target if critic_target else Critic(state_size, action_size, seed).to(device)
+        self.critic_local = critic_local if critic_local else Critic(state_size, action_size, self.seed).to(device)
+        self.critic_target = critic_target if critic_target else Critic(state_size, action_size, self.seed).to(device)
         self.critic_optimizer = critic_optimizer if critic_optimizer else optim.Adam(self.critic_local.parameters(), lr=self.handler.LEARNING_RATE_CRITIC, weight_decay=self.handler.WEIGHT_DECAY)
 
         self.noise = OUNoise(action_size)

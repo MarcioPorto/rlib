@@ -8,7 +8,8 @@ import torch.optim as optim
 from rlib.algorithms.base import Agent
 from rlib.algorithms.dqn.model import QNetwork
 from rlib.shared.replay_buffer import ReplayBuffer
-from rlib.shared.utils import hard_update, soft_update
+from rlib.shared.utils import hard_update
+from rlib.shared.utils import soft_update
 
 
 class DQNAgent(Agent):
@@ -65,19 +66,21 @@ class DQNAgent(Agent):
             new_hyperparameters=new_hyperparameters
         )
 
+        random.seed(seed)
+
         self.state_size = state_size
         self.action_size = action_size
-        self.seed = random.seed(seed)
+        self.seed = seed
         self.device = device
         self.time_step = 0
 
         if qnetwork_local:
-            self.qnetwork_local = qnetwork_local
+            self.qnetwork_local = qnetwork_local.to(self.device)
         else:
             self.qnetwork_local = QNetwork(state_size, action_size).to(self.device)
 
         if qnetwork_target:
-            self.qnetwork_target = qnetwork_target
+            self.qnetwork_target = qnetwork_target.to(self.device)
         else:
             self.qnetwork_target = QNetwork(state_size, action_size).to(self.device)
 
@@ -90,7 +93,7 @@ class DQNAgent(Agent):
             )
 
         # Replay memory
-        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, seed)
+        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE)
 
         # User options
         self.opt_soft_update = opt_soft_update

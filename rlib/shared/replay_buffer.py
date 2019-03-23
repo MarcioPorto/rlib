@@ -8,18 +8,16 @@ import torch
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, buffer_size: int, batch_size: int, seed: int = 0):
+    def __init__(self, buffer_size: int, batch_size: int):
         """ Initializes a ReplayBuffer object.
 
         Args:
             buffer_size (int): maximum size of buffer.
             batch_size (int): size of each training batch.
-            seed (int): random seed.
 
         Returns:
             An instance of ReplayBuffer.
         """
-        self.seed = random.seed(seed)
         self.memory = deque(maxlen=buffer_size)
         self.batch_size = batch_size
         self.experience = namedtuple(

@@ -45,8 +45,9 @@ class PPOAgent(Agent):
             logger_comment=logger_comment
         )
 
-        # TODO: Single interface for seeding
-        self.seed = random.seed(seed)
+        random.seed(seed)
+
+        self.seed = seed
         self.time_step = 0
 
         self.device = device

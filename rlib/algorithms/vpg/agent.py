@@ -55,14 +55,15 @@ class VPGAgent(Agent):
             logger_comment=logger_comment
         )
 
-        # TODO: Single interface for seeding
-        self.seed = random.seed(seed)
+        random.seed(seed)
+
+        self.seed = seed
         self.time_step = 0
 
         self.device = device
 
         if policy:
-            self.policy = policy
+            self.policy = policy.to(self.device)
         else:
             self.policy = Policy(
                 s_size=state_size,

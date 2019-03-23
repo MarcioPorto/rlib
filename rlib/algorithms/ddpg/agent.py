@@ -73,10 +73,12 @@ class DDPGAgent(Agent):
             logger_comment=logger_comment
         )
 
+        random.seed(seed)
+
         self.state_size = state_size
         self.action_size = action_size
         self.num_agents = num_agents
-        self.seed = random.seed(seed)
+        self.seed = seed
         self.device = device
         self.time_step = 0
 
@@ -91,10 +93,10 @@ class DDPGAgent(Agent):
         self.critic_optimizer = critic_optimizer if critic_optimizer else optim.Adam(self.critic_local.parameters(), lr=self.LEARNING_RATE_CRITIC, weight_decay=self.WEIGHT_DECAY)
 
         # Noise process
-        self.noise = OUNoise(action_size, seed)
+        self.noise = OUNoise(action_size, self.seed)
 
         # Replay memory
-        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE, seed)
+        self.memory = ReplayBuffer(self.BUFFER_SIZE, self.BATCH_SIZE)
 
         # User options
         self.opt_soft_update = opt_soft_update
