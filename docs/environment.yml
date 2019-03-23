@@ -12,7 +12,9 @@ dependencies:
   - matplotlib
   - tensorflow
   - pip:
+    - atari-py
     - gym
+    - imageio
     - sphinx-gallery
     - sphinxcontrib-napoleon
     - sphinxcontrib-bibtex

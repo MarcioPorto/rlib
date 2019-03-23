@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="rlib",
-    version="0.0.2",
+    version="0.0.3",
     author="Márcio Porto",
     author_email="mflporto@gmail.com",
     description="Implementations of popular Deep Reinforcement Learning algorithms",
@@ -14,6 +14,10 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MarcioPorto/rlib",
     packages=setuptools.find_packages(),
+    install_requires=[
+        'numpy',
+        'torch>=1.0'
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
