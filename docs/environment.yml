@@ -11,9 +11,9 @@ dependencies:
   - numpy
   - matplotlib
   - tensorflow
-  - gym
   - pip:
-      - sphinx-gallery
-      - sphinxcontrib-napoleon
-      - sphinxcontrib-bibtex
-      - sphinxcontrib-inlinesyntaxhighlight
+    - gym
+    - sphinx-gallery
+    - sphinxcontrib-napoleon
+    - sphinxcontrib-bibtex
+    - sphinxcontrib-inlinesyntaxhighlight
