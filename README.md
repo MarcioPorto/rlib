@@ -30,6 +30,21 @@ env.train()
 env.test()
 ```
 
+### Supported Algorithms
+
+|        | PyTorch | TensorFlow |
+|--------|---------|------------|
+| A2C    | &#9744; | &#9744;    |
+| A3C    | &#9744; | &#9744;    |
+| DPPG   | &#9745; | &#9744;    |
+| DQN    | &#9745; | &#9744;    |
+| MADDPG | &#9744; | &#9744;    |
+| PPO    | &#9744; | &#9744;    |
+| SAC    | &#9744; | &#9744;    |
+| TD3    | &#9744; | &#9744;    |
+| TRPO   | &#9744; | &#9744;    |
+| VPG    | &#9745; | &#9744;    |
+
 ## Advanced
 
 ### TensorBoard and GIFRecorder
