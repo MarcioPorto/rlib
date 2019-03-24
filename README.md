@@ -15,7 +15,7 @@ pip install rlib
 Using `rlib` is this simple:
 
 ```python
-from rlib.algorithms.dqn import DQNAgent
+from rlib.algorithms.pytorch.dqn import DQNAgent
 from rlib.environments.gym import GymEnvironment
 
 

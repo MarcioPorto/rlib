@@ -1,6 +1,6 @@
 import gym
 
-from rlib.algorithms.ddpg import DDPGAgent
+from rlib.algorithms.pytorch.ddpg import DDPGAgent
 from rlib.environments.gym import GymEnvironment
 
 

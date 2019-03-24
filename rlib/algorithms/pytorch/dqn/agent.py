@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from rlib.algorithms.base import Agent
-from rlib.algorithms.dqn.model import QNetwork
+from rlib.algorithms.pytorch.dqn.model import QNetwork
 from rlib.shared.replay_buffer import ReplayBuffer
 from rlib.shared.utils import hard_update
 from rlib.shared.utils import soft_update

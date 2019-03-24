@@ -6,10 +6,12 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from rlib.algorithms.base import Agent
-from rlib.algorithms.ddpg.model import Actor, Critic
+from rlib.algorithms.pytorch.ddpg.model import Actor
+from rlib.algorithms.pytorch.ddpg.model import Critic
 from rlib.shared.noise import OUNoise
 from rlib.shared.replay_buffer import ReplayBuffer
-from rlib.shared.utils import hard_update, soft_update
+from rlib.shared.utils import hard_update
+from rlib.shared.utils import soft_update
 
 
 class DDPGAgent(Agent):

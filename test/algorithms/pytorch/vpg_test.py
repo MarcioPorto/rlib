@@ -1,6 +1,6 @@
 import gym
 
-from rlib.algorithms.vpg import VPGAgent
+from rlib.algorithms.pytorch.vpg import VPGAgent
 from rlib.environments.gym import GymEnvironment
 
 
