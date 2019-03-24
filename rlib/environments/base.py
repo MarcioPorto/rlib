@@ -3,9 +3,9 @@ from tensorboardX import SummaryWriter
 
 
 class BaseEnvironment:
-    def act(self, observations, add_noise=False, logger=None):
+    def act(self, observations, add_noise=False):
         """Picks an action for each agent given their individual observations."""
-        action = self.algorithm.act(observations, add_noise=add_noise, logger=logger)
+        action = self.algorithm.act(observations, add_noise=add_noise)
 
         # TODO: Fix this
         return action

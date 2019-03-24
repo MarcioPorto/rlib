@@ -43,7 +43,8 @@ class DQNAgent(Agent):
                  device: str = "cpu",
                  model_output_dir: str = None,
                  opt_soft_update: bool = False,
-                 opt_ddqn: bool = False):
+                 opt_ddqn: bool = False,
+                 logger=None):
         """Initialize an DQNAgent object.
 
         Args:
@@ -58,12 +59,14 @@ class DQNAgent(Agent):
             model_output_dir (str): Directory where state dicts will be saved to.
             opt_soft_update (bool): Use soft update instead of hard update.
             opt_ddqn (bool): Use Double DQN for `expected_Q`.
+            logger (Logger): Tensorboard logger helper.
         
         Returns:
             An instance of DQNAgent.
         """
         super(DQNAgent, self).__init__(
-            new_hyperparameters=new_hyperparameters
+            new_hyperparameters=new_hyperparameters,
+            logger=logger
         )
 
         random.seed(seed)
@@ -145,7 +148,7 @@ class DQNAgent(Agent):
         )
         return description
 
-    def step(self, state, action, reward, next_state, done, logger=None) -> None:
+    def step(self, state, action, reward, next_state, done) -> None:
         """Saves experience to replay memory and updates model weights.
 
         Args:
@@ -154,7 +157,6 @@ class DQNAgent(Agent):
             reward: Rewards for the actions above.
             next_state: Next environment states.
             done (bool): Boolean indicating if the environment has terminated. 
-            logger (Logger): An instance of Logger.
         """
         self.memory.add(state, action, reward, next_state, done)
 
@@ -163,16 +165,15 @@ class DQNAgent(Agent):
         if self.time_step % self.LEARN_EVERY == 0:
             if len(self.memory) > self.BATCH_SIZE:
                 experiences = self.memory.sample()
-                self.learn(experiences, logger=logger)
+                self.learn(experiences)
 
-    def act(self, state, eps=0.0, add_noise=False, logger=None):
+    def act(self, state, eps=0.0, add_noise: bool = False):
         """Returns actions for given state as per current policy.
 
         Args:
             state: The current state of the environment.
             eps (float): Epsilon, for Epsilon-greedy action selection.
             add_noise (bool): Controls addition of noise.
-            logger (Logger): An instance of Logger.
 
         Returns: 
             Actions for given state as per current policy.
@@ -189,12 +190,11 @@ class DQNAgent(Agent):
         else:
             return random.choice(np.arange(self.action_size))
 
-    def learn(self, experiences, logger=None) -> None:
+    def learn(self, experiences) -> None:
         """Updates value parameters using given batch of experience tuples.
 
         Args:
             experiences (Tuple[torch.Tensor]): Tuple of (s, a, r, s', done) tuples.
-            logger (Logger): An instance of Logger.
         """
         states, actions, rewards, next_states, dones = experiences
 
@@ -233,8 +233,8 @@ class DQNAgent(Agent):
         elif self.time_step % self.HARD_UPDATE_EVERY == 0:
             hard_update(self.qnetwork_local, self.qnetwork_target)
 
-        if logger:
+        if self.logger:
             loss = loss.cpu().detach().item()
-            logger.add_scalar(
+            self.logger.add_scalar(
                 'loss', loss, self.time_step
             )

@@ -58,9 +58,10 @@ logger = Logger(output_dir)
 gifs_recorder = GIFRecorder(output_dir, duration=3.0)
 ```
 
-2. Initialize a new environment using these objects.
+2. Initialize a new agent and/or environment using these objects.
 
 ```python
+dqn = DQNAgent(observation_size, action_size, logger=logger)
 env = GymEnvironment(e, dqn, logger=logger, gifs_recorder=gifs_recorder)
 ```
 

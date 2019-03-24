@@ -43,10 +43,8 @@ class DDPGAgent(Agent):
                  seed: int = 0,
                  device: str = "cpu",
                  model_output_dir: str = None,
-                 enable_logger: bool = False,
-                 logger_path: str = None,
-                 logger_comment: str = None,
-                 opt_soft_update: bool = False):
+                 opt_soft_update: bool = False,
+                 logger=None):
         """Initialize an DDPGAgent object.
 
         Args:
@@ -64,15 +62,14 @@ class DDPGAgent(Agent):
             device (str): Identifier for device to be used by PyTorch.
             model_output_dir (str): Directory where state dicts will be saved to.
             opt_soft_update (bool): Use soft update instead of hard update.
+            logger (Logger): Tensorboard logger helper.
 
         Returns:
             An instance of DDPGAgent.
         """
         super(DDPGAgent, self).__init__(
             new_hyperparameters=new_hyperparameters,
-            enable_logger=enable_logger,
-            logger_path=logger_path,
-            logger_comment=logger_comment
+            logger=logger
         )
 
         random.seed(seed)
@@ -156,7 +153,7 @@ class DDPGAgent(Agent):
         )
         return description
 
-    def step(self, states, actions, rewards, next_states, dones, logger=None) -> None:
+    def step(self, states, actions, rewards, next_states, dones) -> None:
         """Save experience in replay memory, and use random sample from buffer to learn.
 
         Args:
@@ -165,7 +162,6 @@ class DDPGAgent(Agent):
             rewards: Rewards for the actions above.
             next_states: Next environment states.
             dones (bool): Boolean indicating if the environment has terminated. 
-            logger (Logger): An instance of Logger.
         """
         if self.num_agents == 1:
             self.memory.add(states, actions, rewards, next_states, dones)
@@ -179,15 +175,14 @@ class DDPGAgent(Agent):
         if self.time_step % self.LEARN_EVERY == 0:
             if len(self.memory) > self.BATCH_SIZE:
                 experiences = self.memory.sample()
-                self.learn(experiences, logger=logger)
+                self.learn(experiences)
 
-    def act(self, state, add_noise: bool = True, logger=None):
+    def act(self, state, add_noise: bool = True):
         """Chooses an action for the current state based on the current policy.
 
         Args:
             state: The current state of the environment.
             add_noise (bool): Controls addition of noise.
-            logger (Logger): An instance of Logger.
 
         Returns: 
             Actions for given state as per current policy.
@@ -222,7 +217,7 @@ class DDPGAgent(Agent):
             # return np.clip(action, -1, 1)
             return actions
 
-    def learn(self, experiences, logger=None) -> None:
+    def learn(self, experiences) -> None:
         """Update policy and value parameters using given batch of experience tuples.
 
         Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
@@ -232,7 +227,6 @@ class DDPGAgent(Agent):
         
         Args:
             experiences (Tuple[torch.Tensor]): Tuple of (s, a, r, s', done) tuples.
-            logger (Logger): An instance of Logger.
         """
         states, actions, rewards, next_states, dones = experiences
 
@@ -274,10 +268,10 @@ class DDPGAgent(Agent):
             hard_update(self.actor_local, self.actor_target)
             hard_update(self.critic_local, self.critic_target)
 
-        if logger:
+        if self.logger:
             actor_loss = actor_loss.cpu().detach().item()
             critic_loss = critic_loss.cpu().detach().item()
-            logger.add_scalars(
+            self.logger.add_scalars(
                 'loss', {
                     "actor loss": actor_loss,
                     "critic loss": critic_loss,

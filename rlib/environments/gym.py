@@ -134,13 +134,12 @@ class GymEnvironment(BaseEnvironment):
                 if max_t and t == max_t + 1:
                     break
 
-                action = self.act(observation, add_noise=add_noise, logger=self.logger)
+                action = self.act(observation, add_noise=add_noise)
                 next_observation, reward, done, _ = self.env.step(action)
                 next_observation = self.normalize_observation(next_observation)
 
                 self.algorithm.step(
-                    observation, action, reward, next_observation, done,
-                    logger=self.logger
+                    observation, action, reward, next_observation, done
                 )
 
                 observation = next_observation
@@ -155,7 +154,7 @@ class GymEnvironment(BaseEnvironment):
                     break
 
             self.episode_scores.append(scores)
-            self.algorithm.update(rewards, logger=self.logger)
+            self.algorithm.update(rewards)
 
             if save_info:
                 # TODO: Only save if best weights so far

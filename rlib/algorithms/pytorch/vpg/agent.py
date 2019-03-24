@@ -30,9 +30,7 @@ class VPGAgent(Agent):
                  seed: int = 0,
                  device: str = "cpu",
                  model_output_dir=None,
-                 enable_logger: bool = False,
-                 logger_path: str = None,
-                 logger_comment: str = None):
+                 logger=None):
         """Initialize an VPGAgent object.
 
         Args:
@@ -44,15 +42,14 @@ class VPGAgent(Agent):
             seed (int): Random seed.
             device (str): Identifier for device to be used by PyTorch.
             model_output_dir (str): Directory where state dicts will be saved to.
+            logger (Logger): Tensorboard logger helper.
 
         Returns:
             An instance of VPGAgent.
         """
         super(VPGAgent, self).__init__(
             new_hyperparameters=new_hyperparameters,
-            enable_logger=enable_logger,
-            logger_path=logger_path,
-            logger_comment=logger_comment
+            logger=logger
         )
 
         random.seed(seed)
@@ -123,17 +120,16 @@ class VPGAgent(Agent):
         """Reset VPGAgent."""
         self.saved_log_probs = []
 
-    def step(self, state, action, reward, next_state, done, logger=None) -> None:
+    def step(self, state, action, reward, next_state, done) -> None:
         """Increment step count."""
         self.time_step += 1
 
-    def act(self, state, add_noise=False, logger=None):
+    def act(self, state, add_noise: bool = False):
         """Chooses an action for the current state based on the current policy.
 
         Args:
             state: The current state of the environment.
             add_noise (bool): Controls addition of noise.
-            logger (Logger): An instance of Logger.
 
         Returns: 
             Action for given state as per current policy.
@@ -146,12 +142,11 @@ class VPGAgent(Agent):
         self.saved_log_probs.append(log_prob)
         return action.item()
 
-    def update(self, rewards, logger=None) -> None:
+    def update(self, rewards) -> None:
         """Updates policy.
 
         Args:
             rewards: Environment rewards.
-            logger (Logger): An instance of Logger.
         """
         discounts = [
             self.GAMMA**i
@@ -168,8 +163,8 @@ class VPGAgent(Agent):
         policy_loss.backward()
         self.optimizer.step()
 
-        if logger:
+        if self.logger:
             policy_loss = policy_loss.cpu().detach().item()
-            logger.add_scalar(
+            self.logger.add_scalar(
                 'loss', policy_loss, self.time_step
             )
