@@ -43,24 +43,40 @@ class Agent(ABC):
         pass
 
     def reset(self):
-        """Resets noise."""
+        """Resets the state of the agent at the beginning of each episode."""
         if hasattr(self, "noise"):
             self.noise.reset()
 
     def act(self, state, add_noise: bool = False):
-        """Default `act` implementation."""
+        """Default `act` implementation.
+        
+        This method uses the current policy learned by the agent to pick the
+        agent's next action in the environment. 
+        """
         pass
 
     def step(self, state, action, reward, next_state, done):
-        """Default `step` implementation."""
+        """Default `step` implementation.
+
+        Called after an agent takes an action in the environment, this method is 
+        used to perform actions on the most recent (s, a, r, s', d) tuple.
+        """
         pass
 
     def learn(self, experiences):
-        """Default `learn` implementation."""
+        """Default `learn` implementation.
+
+        Given a list of experiences (usually from a sample of the experiences in
+        a ReplayBuffer), this method updates the agent's model of the environment.
+        """
         pass
 
     def update(self, rewards):
-        """Default `update` implementation."""
+        """Default `update` implementation.
+
+        Given a list of rewards collected over the course of an entire episode,
+        this method updates the agent's model of the environment.
+        """
         pass
 
     def get_hyperparameters(self):
