@@ -4,10 +4,13 @@ import gym
 import matplotlib.pyplot as plt
 import numpy as np
 import progressbar as pb
+import torch
 from typing import List
 
 from rlib.environments.base import BaseEnvironment
-from rlib.shared.utils import Logger, GIFRecorder
+from rlib.shared.utils import Logger
+from rlib.shared.utils import GIFRecorder
+from rlib.shared.parallel_env import ParallelEnv
 
 
 class GymEnvironment(BaseEnvironment):
@@ -218,3 +221,124 @@ class GymEnvironment(BaseEnvironment):
                 observation = next_observation
 
         self.close_env()
+
+
+class ParallelGymEnvironment(GymEnvironment):
+    def normalize_observations(self, observations):
+        """Normalizes the observations received from the environment.
+
+        NOTE: Users must override this function if any transformation is needed. 
+
+        Returns:
+            The normalized observations.
+        """
+        return observations
+
+    def train(self, 
+              num_episodes: int = 100, 
+              max_t: int = None, 
+              add_noise: bool = True, 
+              scores_window_size: int = 100, 
+              save_every: int = None,
+              num_workers: int = 1) -> List[float]:
+        # TODO: Add multi-agent support for MADDPG
+
+        # TODO: Move this to initialization
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.envs = ParallelEnv(self._env_name, num_workers=num_workers, seed=12345)
+        mean_rewards = []
+
+        widget = [
+            "Episode: ", pb.Counter(), '/' , str(num_episodes), ' ',
+            pb.Percentage(), ' ', pb.ETA(), ' ', pb.Bar(marker=pb.RotatingMarker()), ' ',
+            'Rolling Average: ', pb.FormatLabel('')
+        ]
+        timer = pb.ProgressBar(widgets=widget, maxval=num_episodes).start()
+
+        # TODO: Start all episodes
+        self.episode_scores = []
+
+        for i_episode in range(1, num_episodes + 1):
+            # TODO: Fix self.get_current_average_score(scores_window_size)
+            current_average = 0.0
+            widget[12] = pb.FormatLabel(str(current_average)[:6])
+            timer.update(i_episode)
+
+            save_info = save_every and i_episode % save_every == 0
+
+            observations = self.envs.reset()
+            observations = self.normalize_observations(observations)
+
+            scores = np.zeros(self.num_agents)
+
+            # Keep track of trajectories
+            trajectory_states = [[] for _ in range(num_workers)]
+            trajectory_actions = [[] for _ in range(num_workers)]
+            trajectory_rewards = [[] for _ in range(num_workers)]
+            
+            self.algorithm.reset()
+
+            frames = []
+
+            # if save_info:
+            #     frames.append(self.env.render("rgb_array"))
+
+            t = 1
+            while True:
+                if max_t and t == max_t + 1:
+                    break
+                
+                # Update trajectory
+                for i, obs in enumerate(observations):
+                    # TODO: Change to numpy operation
+                    trajectory_states[i].append(obs)
+                
+                    action = self.act(obs, add_noise=add_noise)
+                    trajectory_actions[i].append(action)
+
+                # TODO: Change action
+                actions = [1] * 2
+                
+                next_observations, rewards, dones, infos = self.envs.step(actions)
+                next_observations = self.normalize_observations(next_observations)
+
+                self.algorithm.step(
+                    observations, actions, rewards, next_observations, dones
+                )
+
+                observations = next_observations
+                scores += np.mean(rewards)
+
+                # Update trajectory
+                for i, reward in enumerate(rewards):
+                    trajectory_rewards.append(reward)
+
+                t += 1
+
+                # if save_info:
+                #     frames.append(self.env.render("rgb_array"))
+
+                if True in dones:
+                    break
+
+            self.episode_scores.append(scores)
+            self.algorithm.update(
+                trajectory_states, trajectory_actions, trajectory_rewards
+            )
+
+            if save_info:
+                # TODO: Only save if best weights so far
+                self.algorithm.save_state_dicts()
+
+                if self.logger:
+                    self.logger.add_scalar("avg_rewards", np.mean(trajectory_rewards), i_episode)
+
+                # if self.gifs_recorder:
+                #     self.gifs_recorder.save_gif("episode-{}.gif".format(i_episode), frames)
+
+        self.envs.close()
+        
+        if self.logger:
+            self.logger.close()
+
+        return self.episode_scores
