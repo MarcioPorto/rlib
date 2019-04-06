@@ -11,9 +11,9 @@ def main(seed=0):
     observation_size = 4
     action_size = 2
 
-    ppo = PPOAgent(observation_size, action_size, seed=seed)
+    ppo = PPOAgent(observation_size, action_size, seed=seed, new_hyperparameters={'num_updates': 2})
     env = GymEnvironment(e, ppo)
-    env.train()
+    env.train(num_episodes=500)
     env.test()
 
 
