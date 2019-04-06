@@ -142,7 +142,7 @@ class VPGAgent(Agent):
         self.saved_log_probs.append(log_prob)
         return action.item()
 
-    def update(self, rewards) -> None:
+    def update(self, states, actions, rewards) -> None:
         """Updates policy.
 
         Args:

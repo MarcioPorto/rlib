@@ -120,8 +120,14 @@ class GymEnvironment(BaseEnvironment):
 
             observation = self.env.reset()
             observation = self.normalize_observation(observation)
+            
             scores = np.zeros(self.num_agents)
+
+            # Keep track of trajectory
+            states = []
+            actions = []
             rewards = []
+            
             self.algorithm.reset()
 
             frames = []
@@ -134,6 +140,9 @@ class GymEnvironment(BaseEnvironment):
                 if max_t and t == max_t + 1:
                     break
 
+                # Update trajectory
+                states.append(observation)
+
                 action = self.act(observation, add_noise=add_noise)
                 next_observation, reward, done, _ = self.env.step(action)
                 next_observation = self.normalize_observation(next_observation)
@@ -144,7 +153,11 @@ class GymEnvironment(BaseEnvironment):
 
                 observation = next_observation
                 scores += reward
+                
+                # Update trajectory
                 rewards.append(reward)
+                actions.append(action)
+
                 t += 1
 
                 if save_info:
@@ -154,7 +167,7 @@ class GymEnvironment(BaseEnvironment):
                     break
 
             self.episode_scores.append(scores)
-            self.algorithm.update(rewards)
+            self.algorithm.update(states, actions, rewards)
 
             if save_info:
                 # TODO: Only save if best weights so far

@@ -71,7 +71,7 @@ class Agent(ABC):
         """
         pass
 
-    def update(self, rewards):
+    def update(self, states, actions, rewards):
         """Default `update` implementation.
 
         Given a list of rewards collected over the course of an entire episode,
