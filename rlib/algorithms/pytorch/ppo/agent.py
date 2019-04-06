@@ -7,7 +7,7 @@ import torch.optim as optim
 from torch.distributions import Categorical
 
 from rlib.algorithms.base import Agent
-from rlib.algorithms.pytorch.vpg.model import Policy
+from rlib.algorithms.pytorch.ppo.model import Policy
 
 
 class PPOAgent(Agent):
@@ -18,31 +18,38 @@ class PPOAgent(Agent):
     # TODO: Look up original value for these params
     REQUIRED_HYPERPARAMETERS = {
         "gamma": 1.0,
-        "learning_rate": 1e-2,
-        "beta": .01,
-        "discount_rate": .99,
-        "update_every": 4  # TODO: rename
+        "learning_rate": 1e-2
     }
 
     def __init__(self,
-                 state_size,
-                 action_size,
+                 state_size: int,
+                 action_size: int,
                  policy=None,
                  optimizer=None,
                  new_hyperparameters=None,
-                 seed=0,
-                 device="cpu",
+                 seed: int = 0,
+                 device: str = "cpu",
                  model_output_dir=None,
-                 enable_logger=False,
-                 logger_path=None,
-                 logger_comment=None):
-        raise NotImplementedError()
+                 logger=None):
+        """Initialize an PPOAgent object.
 
-        super(PPO, self).__init__(
+        Args:
+            state_size (int): dimension of each state.
+            action_size (int): dimension of each action.
+            policy (torch.nn.Module): Policy model.
+            optimizer (torch.optim): Model optimizer.
+            new_hyperparameters (dict): New hyperparameter values.
+            seed (int): Random seed.
+            device (str): Identifier for device to be used by PyTorch.
+            model_output_dir (str): Directory where state dicts will be saved to.
+            logger (Logger): Tensorboard logger helper.
+
+        Returns:
+            An instance of PPOAgent.
+        """
+        super(PPOAgent, self).__init__(
             new_hyperparameters=new_hyperparameters,
-            enable_logger=enable_logger,
-            logger_path=logger_path,
-            logger_comment=logger_comment
+            logger=logger
         )
 
         random.seed(seed)
@@ -53,7 +60,7 @@ class PPOAgent(Agent):
         self.device = device
 
         if policy:
-            self.policy = policy
+            self.policy = policy.to(self.device)
         else:
             self.policy = Policy(
                 s_size=state_size,
@@ -76,14 +83,57 @@ class PPOAgent(Agent):
         self.saved_log_probs = []
         self.model_output_dir = model_output_dir
 
-    def reset(self):
+    def __str__(self) -> str:
+        """Helper to output network architecture for the agent.
+        
+        Returns:
+            A string representation of this algorithm.
+        """
+        return ("{}\n{}".format(
+            "Policy:",
+            self.policy,
+        ))
+
+    def origin(self) -> str:
+        """Helper to get the original paper for this algorithm.
+
+        Returns: 
+            The original paper for this algorithm.
+        """
+        return 'https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf'
+    
+    def description(self) -> str:
+        """Helper to get a brief description of this algorithm.
+
+        Returns:
+            A brief description of this algorithm.
+        """
+        description = (
+            'The key idea underlying policy gradients is to push up the '
+            'probabilities of actions that lead to higher return, and '
+            'push down the probabilities of actions that lead to lower '
+            'return, until you arrive at the optimal policy.'
+        )
+        return description
+
+    def reset(self) -> None:
+        """Reset PPOAgent."""
         self.saved_log_probs = []
 
-    def step(self, state, action, reward, next_state, done, logger=None):
-        # NOTE: Think this makes sense here
+    def step(self, state, action, reward, next_state, done) -> None:
+        """Increment step count."""
         self.time_step += 1
 
-    def act(self, state, add_noise=False, logger=None):
+    def act(self, state, add_noise: bool = False):
+        """Chooses an action for the current state based on the current policy.
+
+        Args:
+            state: The current state of the environment.
+            add_noise (bool): Controls addition of noise.
+
+        Returns: 
+            Action for given state as per current policy.
+        """
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         probs = self.policy.forward(state).cpu()
         m = Categorical(probs)
@@ -92,11 +142,17 @@ class PPOAgent(Agent):
         self.saved_log_probs.append(log_prob)
         return action.item()
 
-    def update(self, rewards, logger=None):
+    def update(self, rewards) -> None:
+        """Updates policy.
+
+        Args:
+            rewards: Environment rewards.
+        """
         discounts = [
-            self.GAMMA**i
-            for i in range(len(rewards)+1)
+            self.GAMMA ** i
+            for i in range(len(rewards) + 1)
         ]
+        # R is discounted future rewards
         R = sum([a * b for a, b in zip(discounts, rewards)])
 
         policy_loss = []
@@ -108,11 +164,12 @@ class PPOAgent(Agent):
         policy_loss.backward()
         self.optimizer.step()
 
-        if logger:
+        if self.logger:
             policy_loss = policy_loss.cpu().detach().item()
-            logger.add_scalar(
+            self.logger.add_scalar(
                 'loss', policy_loss, self.time_step
             )
+
 
     @staticmethod
     def clipped_surrogate(policy, old_probs, states, actions, rewards,

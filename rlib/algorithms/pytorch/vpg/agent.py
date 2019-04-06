@@ -149,9 +149,10 @@ class VPGAgent(Agent):
             rewards: Environment rewards.
         """
         discounts = [
-            self.GAMMA**i
-            for i in range(len(rewards)+1)
+            self.GAMMA ** i
+            for i in range(len(rewards) + 1)
         ]
+        # R is discounted future rewards
         R = sum([a * b for a, b in zip(discounts, rewards)])
 
         policy_loss = []

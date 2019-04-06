@@ -89,14 +89,12 @@ class VectorizedEnv(ABC):
 
 
 class ParallelEnv(VectorizedEnv):
-    def __init__(self, env_name, n=4, seed=None, spaces=None):
+    def __init__(self, env_name, num_workers=4, seed=None, spaces=None):
         """ Initializes a ParallelEnv.
         envs: list of gym environments to run in subprocesses
         adopted from openai baseline
         """
-        raise NotImplementedError()
-
-        env_fns = [ gym.make(env_name) for _ in range(n) ]
+        env_fns = [ gym.make(env_name) for _ in range(num_workers) ]
 
         if seed is not None:
             for i, e in enumerate(env_fns):
