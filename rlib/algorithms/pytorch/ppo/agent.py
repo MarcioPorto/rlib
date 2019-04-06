@@ -146,18 +146,25 @@ class PPOAgent(Agent):
         """Updates policy.
 
         Args:
+            states: Environment states.
+            actions: Environment rewards.
             rewards: Environment rewards.
         """
-        discounts = [
-            self.GAMMA ** i
-            for i in range(len(rewards) + 1)
-        ]
-        # R is discounted future rewards
-        R = sum([a * b for a, b in zip(discounts, rewards)])
+        # Future rewards entry for each timestep
+        R_future = []
+
+        for i in range(len(states)):
+            future_rewards = rewards[i:]
+            discounts = [
+                self.GAMMA ** i
+                for i in range(len(future_rewards) + 1)
+            ]
+            discounted_future_rewards = sum([a * b for a, b in zip(discounts, future_rewards)])
+            R_future.append(discounted_future_rewards)
 
         policy_loss = []
-        for log_prob in self.saved_log_probs:
-            policy_loss.append(-log_prob * R)
+        for i, log_prob in enumerate(self.saved_log_probs):
+            policy_loss.append(-log_prob * R_future[i])
         policy_loss = torch.cat(policy_loss).sum()
 
         self.optimizer.zero_grad()

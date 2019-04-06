@@ -146,6 +146,8 @@ class VPGAgent(Agent):
         """Updates policy.
 
         Args:
+            states: Environment states.
+            actions: Environment rewards.
             rewards: Environment rewards.
         """
         discounts = [
