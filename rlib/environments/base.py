@@ -5,15 +5,17 @@ from tensorboardX import SummaryWriter
 class BaseEnvironment:
     def act(self, observations, add_noise=False):
         """Picks an action for each agent given their individual observations."""
-        action = self.algorithm.act(observations, add_noise=add_noise)
+        single_action = False
+
+        # If actions from a single worker comes in, convert into 2D array
+        if len(observations.shape) == 1:
+            observations = observations.reshape(1, -1)
+            single_action = True
+
+        actions = self.algorithm.act(observations, add_noise=add_noise)
 
         # TODO: Fix this
-        return action
-
-        # if self.action_type == list and not isinstance(action, np.ndarray):
-        #     return np.array([action])
-        # else:
-        #     return action
+        return actions if not single_action else actions[0]
 
     def plot_scores(self, scores=None, env_solved_score=None):
         """Plots scores for each episode.

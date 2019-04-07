@@ -246,6 +246,7 @@ class ParallelGymEnvironment(GymEnvironment):
         # TODO: Move this to initialization
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.envs = ParallelEnv(self._env_name, num_workers=num_workers, seed=12345)
+        self.algorithm.initialize(self.num_agents, num_workers)
         mean_rewards = []
 
         widget = [
@@ -293,11 +294,7 @@ class ParallelGymEnvironment(GymEnvironment):
                     # TODO: Change to numpy operation
                     trajectory_states[i].append(obs)
                 
-                    action = self.act(obs, add_noise=add_noise)
-                    trajectory_actions[i].append(action)
-
-                # TODO: Change action
-                actions = [1] * 2
+                actions = self.algorithm.act(observations, add_noise=add_noise)
                 
                 next_observations, rewards, dones, infos = self.envs.step(actions)
                 next_observations = self.normalize_observations(next_observations)
@@ -311,7 +308,8 @@ class ParallelGymEnvironment(GymEnvironment):
 
                 # Update trajectory
                 for i, reward in enumerate(rewards):
-                    trajectory_rewards.append(reward)
+                    trajectory_rewards[i].append(reward)
+                    trajectory_actions[i].append(actions[i])
 
                 t += 1
 
