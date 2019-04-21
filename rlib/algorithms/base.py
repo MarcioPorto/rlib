@@ -42,6 +42,15 @@ class Agent(ABC):
         """Returns a brief description of this algorithm."""
         pass
 
+    def initialize(self, num_agents: int, num_workers: int) -> None:
+        """Default `initialize` implementation.
+        
+        This method gets called when an environment is initialized and can be
+        used to complete the initilization for an agent based on environment 
+        information.
+        """
+        pass
+
     def reset(self):
         """Resets the state of the agent at the beginning of each episode."""
         if hasattr(self, "noise"):

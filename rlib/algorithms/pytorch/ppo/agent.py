@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.autograd import Variable
 from torch.distributions import Categorical
 
 from rlib.algorithms.base import Agent
@@ -20,6 +21,8 @@ class PPOAgent(Agent):
         "gamma": 1.0,
         "learning_rate": 1e-2,
         "num_updates": 4,
+        "epsilon": 0.1,
+        "beta": 0.01
     }
 
     def __init__(self,
@@ -57,7 +60,6 @@ class PPOAgent(Agent):
 
         self.seed = seed
         self.time_step = 0
-        self.epsilon = 0.1
 
         self.device = device
 
@@ -82,8 +84,6 @@ class PPOAgent(Agent):
             (self.optimizer, "optimizer_params"),
         ]
 
-        self.saved_log_probs = []
-        self.saved_probs = []
         self.model_output_dir = model_output_dir
 
     def __str__(self) -> str:
@@ -119,88 +119,118 @@ class PPOAgent(Agent):
         )
         return description
 
+    def initialize(self, num_agents: int, num_workers: int) -> None:
+        self.num_agents = num_agents
+        self.num_workers = num_workers
+
+        self.saved_log_probs = [[] for _ in range(self.num_workers)]
+        self.saved_probs = [[] for _ in range(self.num_workers)]
+
     def reset(self) -> None:
         """Reset PPOAgent."""
-        self.saved_log_probs = []
-        self.saved_probs = []
+        self.saved_log_probs = [[] for _ in range(self.num_workers)]
+        self.saved_probs = [[] for _ in range(self.num_workers)]
 
     def step(self, state, action, reward, next_state, done) -> None:
         """Increment step count."""
         self.time_step += 1
 
-    def act(self, state, add_noise: bool = False):
+    def act(self, states, add_noise: bool = False):
         """Chooses an action for the current state based on the current policy.
 
         Args:
-            state: The current state of the environment.
+            state: The current state of the environment for each worker.
             add_noise (bool): Controls addition of noise.
 
         Returns: 
             Action for given state as per current policy.
         """
-        state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
-        probs = self.policy.forward(state).cpu()
-        m = Categorical(probs)
-        action = m.sample()
-        log_prob = m.log_prob(action)
-        self.saved_log_probs.append(log_prob)
-        self.saved_probs.append(probs[0][action.item()])
-        return action.item()
+        actions = []
+
+        for worker_id, state in enumerate(states):
+            state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
+            probs = self.policy.forward(state).cpu()
+            m = Categorical(probs)
+            action = m.sample()
+            log_prob = m.log_prob(action)
+
+            self.saved_log_probs[worker_id].append(log_prob)
+            self.saved_probs[worker_id].append(probs[0][action.item()])
+
+            actions.append(action.item())
+            
+        return actions
 
     def update(self, states, actions, rewards) -> None:
         """Updates policy.
 
         Args:
-            states: Environment states.
-            actions: Environment rewards.
-            rewards: Environment rewards.
+            states: Environment states trajectories.
+            actions: Environment rewards trajectories.
+            rewards: Environment rewards trajectories.
         """
         for _ in range(self.NUM_UPDATES):
-            # Future rewards entry for each timestep
-            R_future = []
-
-            for i in range(len(states)):
-                future_rewards = rewards[i:]
-                discounts = [
-                    self.GAMMA ** i
-                    for i in range(len(future_rewards) + 1)
-                ]
-                discounted_future_rewards = sum([a * b for a, b in zip(discounts, future_rewards)])
-                R_future.append(discounted_future_rewards)
-
-            # TODO: Normalize rewards once there are mulitple trajectories
-
             policy_loss = []
-            
-            for i, log_prob in enumerate(self.saved_log_probs):
-                old_prob = self.saved_probs[i]
 
-                # with torch.no_grad():
-                state = torch.from_numpy(states[i]).float().unsqueeze(0).to(self.device)
-                probs = self.policy.forward(state).cpu()
-                new_prob = probs[0][actions[i]]
-                ratio = new_prob / old_prob
+            for worker_id in range(self.num_workers):
+                states_l = states[worker_id]
+                actions_l = actions[worker_id]
+                rewards_l = rewards[worker_id]
 
-                clip = torch.clamp(ratio, 1 - self.epsilon, 1 + self.epsilon)
-                clipped_ratio = torch.min(ratio * R_future[i], clip * R_future[i]).view(1)
+                # Future rewards entry for each timestep
+                R_future = []
 
-                # if i == 0:
-                #     print()
-                #     print()
-                #     # print(old_prob)
-                #     # print(new_prob)
-                #     # print(ratio)
-                #     # print(clip)
-                #     print(R_future[i])
-                #     print(log_prob * R_future[i])
-                #     print(clipped_ratio)
+                for t in range(len(states_l)):
+                    future_rewards = rewards_l[t:]
+                    discounts = self.GAMMA ** np.arange(len(future_rewards) + 1)
+                    discounted_future_rewards = sum([a * b for a, b in zip(discounts, future_rewards)])
+                    R_future.append(discounted_future_rewards)
 
-                policy_loss.append(-log_prob * R_future[i])
-                # policy_loss.append(-clipped_ratio)
+                # TODO: Normalize rewards using mean and std
 
-            policy_loss = torch.cat(policy_loss).sum()
+                # print('Worker {}'.format(worker_id))
+                policy_loss_l = []
 
-            # TODO: Average loss across trajectories before optimizing
+                new_probs = []
+                old_probs = []
+                
+                # TODO: Change this enumeration
+                for t, log_prob in enumerate(self.saved_log_probs[worker_id]):
+                    # old_prob = self.saved_probs[worker_id][t]
+                    old_prob = log_prob
+
+                    # TODO: Should this be using no_grad?
+                    state = torch.from_numpy(states_l[t]).float().unsqueeze(0).to(self.device)
+                    probs = self.policy.forward(state).cpu()
+
+                    # new_prob = probs[0][actions_l[t]]
+                    m = Categorical(probs)
+                    a = torch.Tensor([actions_l[t]])
+                    new_prob = m.log_prob(a)
+
+                    new_probs.append(new_prob)
+                    old_probs.append(old_prob)
+
+                    prob_ratio = new_prob / old_prob
+                    
+                    clip = torch.clamp(prob_ratio, 1 - self.EPSILON, 1 + self.EPSILON)
+                    clipped_prob_ratio = torch.min(prob_ratio * R_future[t], clip * R_future[t]).view(1)
+
+                    policy_loss_l.append(-clipped_prob_ratio)
+
+                new_probs = torch.Tensor(new_probs)
+                old_probs = torch.Tensor(old_probs)
+
+                entropy = - (
+                    new_probs * torch.log(old_probs + 1.e-10) + \
+                    (1.0 - new_probs) * torch.log(1.0 - old_probs + 1.e-10)
+                )
+
+                policy_loss.append(
+                    torch.cat(policy_loss_l) + self.BETA * entropy
+                )
+
+            policy_loss = torch.cat(policy_loss).sum() / self.num_workers
 
             self.optimizer.zero_grad()
             policy_loss.backward(retain_graph=True)
@@ -214,8 +244,7 @@ class PPOAgent(Agent):
 
             del policy_loss
         
-        self.epsilon *= 0.999
-        # print('Eps: {}'.format(self.epsilon))
+        self.EPSILON *= 0.999
 
 
     @staticmethod
@@ -225,16 +254,16 @@ class PPOAgent(Agent):
         Returns the sum of log-prob divided by T.
         Same thing as -policy_loss.
         """
-        # discount = discount ** np.arange(len(rewards))
-        # rewards = np.asarray(rewards)*discount[:,np.newaxis]
+        discount = discount ** np.arange(len(rewards))
+        rewards = np.asarray(rewards)*discount[:,np.newaxis]
 
-        # # convert rewards to future rewards
-        # rewards_future = rewards[::-1].cumsum(axis=0)[::-1]
+        # convert rewards to future rewards
+        rewards_future = rewards[::-1].cumsum(axis=0)[::-1]
 
-        # mean = np.mean(rewards_future, axis=1)
-        # std = np.std(rewards_future, axis=1) + 1.0e-10
+        mean = np.mean(rewards_future, axis=1)
+        std = np.std(rewards_future, axis=1) + 1.0e-10
 
-        # rewards_normalized = (rewards_future - mean[:,np.newaxis])/std[:,np.newaxis]
+        rewards_normalized = (rewards_future - mean[:,np.newaxis])/std[:,np.newaxis]
 
         # convert everything into pytorch tensors and move to gpu if available
         actions = torch.tensor(actions, dtype=torch.int8, device=device)

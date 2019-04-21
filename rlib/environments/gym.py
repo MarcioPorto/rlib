@@ -260,8 +260,7 @@ class ParallelGymEnvironment(GymEnvironment):
         self.episode_scores = []
 
         for i_episode in range(1, num_episodes + 1):
-            # TODO: Fix self.get_current_average_score(scores_window_size)
-            current_average = 0.0
+            current_average = self.get_current_average_score(scores_window_size)
             widget[12] = pb.FormatLabel(str(current_average)[:6])
             timer.update(i_episode)
 
@@ -270,7 +269,8 @@ class ParallelGymEnvironment(GymEnvironment):
             observations = self.envs.reset()
             observations = self.normalize_observations(observations)
 
-            scores = np.zeros(self.num_agents)
+            # scores = np.zeros(self.num_agents)
+            scores = 0
 
             # Keep track of trajectories
             trajectory_states = [[] for _ in range(num_workers)]
