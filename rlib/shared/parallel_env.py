@@ -1,5 +1,5 @@
 """
-Taken from openai/baseline with minor edits
+Taken from openai/baseline with minor changes.
 See https://github.com/openai/baselines/blob/master/baselines/common/vec_env/subproc_vec_env.py
 """
 
