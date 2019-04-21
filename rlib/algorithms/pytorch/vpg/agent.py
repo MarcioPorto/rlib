@@ -7,7 +7,7 @@ import torch.optim as optim
 from torch.distributions import Categorical
 
 from rlib.algorithms.base import Agent
-from rlib.algorithms.pytorch.vpg.model import Policy
+from rlib.networks.pytorch.network import Policy
 
 
 class VPGAgent(Agent):

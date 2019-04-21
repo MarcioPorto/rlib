@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from torch.distributions import Categorical
 
 from rlib.algorithms.base import Agent
-from rlib.algorithms.pytorch.ppo.model import Policy
+from rlib.networks.pytorch.network import Policy
 
 
 class PPOAgent(Agent):
@@ -245,50 +245,3 @@ class PPOAgent(Agent):
             del policy_loss
         
         self.EPSILON *= 0.999
-
-
-    @staticmethod
-    def clipped_surrogate(policy, old_probs, states, actions, rewards,
-                          discount=0.995, epsilon=0.1, beta=0.01):
-        """ Clipped surrogate function.
-        Returns the sum of log-prob divided by T.
-        Same thing as -policy_loss.
-        """
-        discount = discount ** np.arange(len(rewards))
-        rewards = np.asarray(rewards)*discount[:,np.newaxis]
-
-        # convert rewards to future rewards
-        rewards_future = rewards[::-1].cumsum(axis=0)[::-1]
-
-        mean = np.mean(rewards_future, axis=1)
-        std = np.std(rewards_future, axis=1) + 1.0e-10
-
-        rewards_normalized = (rewards_future - mean[:,np.newaxis])/std[:,np.newaxis]
-
-        # convert everything into pytorch tensors and move to gpu if available
-        actions = torch.tensor(actions, dtype=torch.int8, device=device)
-        old_probs = torch.tensor(old_probs, dtype=torch.float, device=device)
-        rewards = torch.tensor(rewards_normalized, dtype=torch.float, device=device)
-
-        # convert states to policy (or probability)
-        new_probs = states_to_prob(policy, states)
-        new_probs = torch.where(actions == RIGHT, new_probs, 1.0-new_probs)
-
-        # ratio for clipping
-        ratio = new_probs / old_probs
-
-        # clipped function
-        clip = torch.clamp(ratio, 1-epsilon, 1+epsilon)
-        clipped_surrogate = torch.min(ratio*rewards, clip*rewards)
-
-        # include a regularization term
-        # this steers new_policy towards 0.5
-        # add in 1.e-10 to avoid log(0) which gives nan
-        entropy = -(new_probs*torch.log(old_probs+1.e-10)+ \
-            (1.0-new_probs)*torch.log(1.0-old_probs+1.e-10))
-
-        # this returns an average of all the entries of the tensor
-        # effective computing L_sur^clip / T
-        # averaged over time-step and number of trajectories
-        # this is desirable because we have normalized our rewards
-        return torch.mean(clipped_surrogate + beta*entropy)
